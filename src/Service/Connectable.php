@@ -6,7 +6,7 @@ namespace Ipedis\Bundle\Rabbit\Service;
 
 use Ipedis\Rabbit\Connector;
 
-class Connectable
+abstract class Connectable
 {
     use Connector;
 

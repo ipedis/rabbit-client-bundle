@@ -17,11 +17,9 @@ class RabbitExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        var_dump($configs);
-
         $loader = new YamlFileLoader(
             $container,
-            new FileLocator(__DIR__.'/../Resources/config')
+            new FileLocator(__DIR__.'/../../Resources/config')
         );
 
         $loader->load('services.yaml');
