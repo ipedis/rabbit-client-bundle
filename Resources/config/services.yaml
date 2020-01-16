@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Ipedis\Bundle\Rabbit\Service\Connectable:
+    abstract: true
+    arguments:
+      $host: ""
+      $port: ""
+      $user: ""
+      $password: ""
+      $exchange: ""
+      $type: ""
