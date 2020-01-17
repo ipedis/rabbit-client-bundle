@@ -7,10 +7,10 @@ services:
     abstract: true
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
-      $exchangeConfig: "%ipedis_rabbit.orderExchange%"
+      $exchangeConfig: "%ipedis_rabbit.order%"
 
   Ipedis\Bundle\Rabbit\Service\EventConnectable:
     abstract: true
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
-      $exchangeConfig: "%ipedis_rabbit.eventExchange%"
+      $exchangeConfig: "%ipedis_rabbit.event%"
