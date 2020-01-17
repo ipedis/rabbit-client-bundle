@@ -24,9 +24,4 @@ dump($config);
 
         $loader->load('services.yaml');
     }
-
-    public function getAlias()
-    {
-        return 'ipedis_rabbit';
-    }
 }
