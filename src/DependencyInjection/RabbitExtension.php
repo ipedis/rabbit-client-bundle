@@ -4,10 +4,12 @@
 namespace Ipedis\Bundle\Rabbit\DependencyInjection;
 
 
+use Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 
 class RabbitExtension extends Extension
 {
@@ -28,6 +30,16 @@ class RabbitExtension extends Extension
         );
 
         $loader->load('services.yaml');
+        $this->injectTaggedWorkerService($container);
+    }
+
+    protected function injectTaggedWorkerService(ContainerBuilder $container)
+    {
+        $definition = $container->findDefinition(WorkerContainer::class);
+        $taggedWorkers = $container->findTaggedServiceIds('ipedis_rabbit.worker');
+        foreach ($taggedWorkers as $id => $tags) {
+            $definition->addMethodCall('addWorker', [new Reference($id)]);
+        }
     }
 
     public function getAlias()

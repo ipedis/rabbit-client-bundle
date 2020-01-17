@@ -8,13 +8,17 @@ services:
       tags: ['ipedis_rabbit.worker']
 
 
-  Ipedis\Bundle\Rabbit\Service\OrderConnectable:
+  Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
+    autowire: true
+    autoconfigure: true
+
+  Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable:
     abstract: true
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
       $exchangeConfig: "%ipedis_rabbit.order%"
 
-  Ipedis\Bundle\Rabbit\Service\EventConnectable:
+  Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable:
     abstract: true
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"

@@ -4,6 +4,7 @@
 namespace Ipedis\Bundle\Rabbit\Command;
 
 
+use Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,7 +13,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 class WorkerSpawnerCommand extends Command
 {
     protected static $defaultName = 'ip:worker:spawner';
-    protected $workers = [];
+    /**
+     * @var WorkerContainer
+     */
+    private $workerContainer;
+
+    public function __construct(WorkerContainer $workerContainer, string $name = null)
+    {
+        parent::__construct($name);
+        $this->workerContainer = $workerContainer;
+    }
 
     public function configure()
     {
@@ -21,11 +31,6 @@ class WorkerSpawnerCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        dump($this->workers);
-    }
-
-    protected function addWorker($worker)
-    {
-        $this->workers[] = $worker;
+        dump($this->workerContainer);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Ipedis\Bundle\Rabbit\Service;
+namespace Ipedis\Bundle\Rabbit\Service\Connectable;
 
 
 use Ipedis\Rabbit\Connector;
