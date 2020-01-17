@@ -32,5 +32,6 @@ class WorkerSpawnerCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         dump($this->workerContainer);
+        return 0;
     }
 }
