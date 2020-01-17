@@ -7,14 +7,8 @@ services:
     resource: '../../src/*'
     exclude: '../../src/{DependencyInjection,Entity,RabbitKernel.php}'
 
-  _instanceof:
-    Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface:
-      tags: ['ipedis_rabbit.worker']
-
-
   Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
     arguments: [!tagged { tag: 'ipedis_rabbit.worker', index_by: 'key' }]
-
 
   Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable:
     abstract: true
