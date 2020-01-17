@@ -13,8 +13,7 @@ services:
 
 
   Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
-    arguments:
-      - !tagged_iterator ipedis_rabbit.worker
+    arguments: [!tagged { tag: 'ipedis_rabbit.worker', index_by: 'key' }]
 
 
   Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable:
