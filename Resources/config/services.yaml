@@ -8,6 +8,10 @@ services:
       tags: ['ipedis_rabbit.worker']
 
 
+  Ipedis\Bundle\Rabbit\:
+    resource: '../../src/*'
+    exclude: '../../src/{DependencyInjection,Entity,RabbitKernel.php}'
+
   Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
     autowire: true
     autoconfigure: true
@@ -23,4 +27,3 @@ services:
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
       $exchangeConfig: "%ipedis_rabbit.event%"
-
