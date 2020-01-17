@@ -8,8 +8,20 @@ class WorkerContainer
 {
     protected $workers = [];
 
-    protected function addWorker($worker)
+    public function __construct($workers)
     {
-        $this->workers[] = $worker;
+        foreach ($workers as $id => $worker)
+        {
+            $this->workers[$id] = $worker;
+            dump($this->workers);
+        }
+    }
+
+    /**
+     * @param string $name
+     */
+    public function has(string $name)
+    {
+
     }
 }

@@ -3,18 +3,19 @@ services:
     autowire: true
     autoconfigure: true
 
+  Ipedis\Bundle\Rabbit\:
+    resource: '../../src/*'
+    exclude: '../../src/{DependencyInjection,Entity,RabbitKernel.php}'
+
   _instanceof:
     Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface:
       tags: ['ipedis_rabbit.worker']
 
 
-  Ipedis\Bundle\Rabbit\:
-    resource: '../../src/*'
-    exclude: '../../src/{DependencyInjection,Entity,RabbitKernel.php}'
-
   Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
-    autowire: true
-    autoconfigure: true
+    arguments:
+      - !tagged_iterator ipedis_rabbit.worker
+
 
   Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable:
     abstract: true

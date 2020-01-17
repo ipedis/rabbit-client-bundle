@@ -31,7 +31,7 @@ class WorkerSpawnerCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        dump($this->workerContainer);
+        $this->workerContainer->has($input->getArgument('name'));
         return 0;
     }
 }
