@@ -56,7 +56,7 @@ on `config/bundles.php` add `RabbitBundle` as bellow:
 
 ---
 
-Get Started
+Get Started: Publish and Subscribe.
 ==
 
 **Create event listener worker**
@@ -96,7 +96,7 @@ Create service configuration as following:
         autoconfigure: false
         autowire: true
         tags:
-            - { name: "ipedis_rabbit.worker", key: "binding"}
+            - { name: "ipedis_rabbit.worker", key: "binding" }
 
 *on tag, `binding` key will be used to identify worker from cli*
 
@@ -116,3 +116,129 @@ require service `Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher` and di
     }
 
 it will use `connection` and `event` configuration from bundle configuration.
+
+Get Started: Mananger and Worker
+==
+
+Create service Manager as following:
+    
+    use Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable;
+    use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
+    use PhpAmqpLib\Message\AMQPMessage;
+    
+    class Manager extends OrderConnectable implements ProcessInterface
+    {
+        use \Ipedis\Rabbit\Order\Manager;
+    
+        protected $taskIsFinish;
+    
+        public function execute()
+        {
+            $this->taskIsFinish = false;
+            $this->connect();
+            $anoQueue = $this->bindCallbackToAnonymousQueue([$this,"callback"]);
+    
+            $this->publishTask(Worker::QUEUE_NAME,
+                [
+                    "name" => "task"
+                ],
+                $anoQueue,
+                'task'
+            );
+    
+            while (!$this->taskIsFinish) {
+                $this->channel->wait();
+            }
+        }
+    
+        /**
+         * @description will be executed as soon as worker will send findback on anonymous queue.
+         * @param AMQPMessage $message
+         */
+        public function callback(AMQPMessage $message) {
+            $params = json_decode($message->getBody(),true);
+            switch ($params['status']) {
+                case "PROGRESS":
+                    $this->onProgress($message);
+                    break;
+                case "SUCCESS":
+                    $this->onSuccess($message);
+                    break;
+                case "ERROR":
+                    $this->onError($message);
+                    break;
+            }
+    
+        }
+    
+        private function onProgress(AMQPMessage $message)
+        {
+            // [...]
+        }
+    
+        private function onSuccess(AMQPMessage $message)
+        {
+            // [...]
+            $this->taskIsFinish = true;
+        }
+    
+        private function onError(AMQPMessage $message)
+        {
+            // [...]
+            $this->taskIsFinish = true;
+        }
+        public function __destruct()
+        {
+            $this->disconnect();
+        }
+    }
+
+
+and config as following
+
+    App\Service\Manager:
+        parent: Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable
+        autoconfigure: false
+        autowire: true
+        tags:
+            - { name: "ipedis_rabbit.worker", key: "manager" }
+
+
+Create Service Worker as following:
+
+    use Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable;
+    use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
+    use PhpAmqpLib\Message\AMQPMessage;
+    
+    class Worker extends OrderConnectable implements ProcessInterface
+    {
+        use \Ipedis\Rabbit\Order\Worker;
+    
+        const QUEUE_NAME = 'publispeak.worker';
+    
+    
+    
+        public function getQueueName(): string
+        {
+            return self::QUEUE_NAME;
+        }
+    
+        protected function getProcessing(): \Closure
+        {
+            return function (AMQPMessage $req) {
+    
+                $this->notifyTo($req, ['status' => 'PROGRESS', 'step' => 1]);
+    
+                return ["foo" => "bar"];
+            };
+        }
+    }
+
+and config as following:
+
+    App\Service\Worker:
+        parent: Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable
+        autoconfigure: false
+        autowire: true
+        tags:
+            - { name: "ipedis_rabbit.worker", key: "worker" }

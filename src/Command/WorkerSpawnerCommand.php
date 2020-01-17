@@ -35,9 +35,8 @@ class WorkerSpawnerCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-
         if( ! $this->workerContainer->has($input->getArgument('name')) ) {
-            $io->error(sprintf("No service tagged with this name : %s", $input->getArgument('name')));
+            $io->error(sprintf("No service tagged with this name : \"%s\"", $input->getArgument('name')));
             return -1;
         }
 
@@ -45,11 +44,11 @@ class WorkerSpawnerCommand extends Command
         $worker = $this->workerContainer->get($input->getArgument('name'));
 
         if (!($worker instanceof ProcessInterface)) {
-            $io->error(sprintf("Registred service does not implement ProcessInterface", $input->getArgument('name')));
+            $io->error(sprintf("Registred service \"%s\" does not implement \"ProcessInterface\"", $input->getArgument('name')));
             return -1;
         }
 
-        $io->success(sprintf("work %s is up", $input->getArgument('name')));
+        $io->success(sprintf("Worker \"%s\" is up and ready to start processing.", $input->getArgument('name')));
 
         $worker
             ->execute();
