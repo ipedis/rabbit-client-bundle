@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class WorkerSpawnerCommand extends Command
 {
@@ -32,9 +33,11 @@ class WorkerSpawnerCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $io = new SymfonyStyle($input, $output);
+
 
         if( ! $this->workerContainer->has($input->getArgument('name')) ) {
-            $output->writeln(sprintf("'<error>No service tagged with this name : %s</error>'", $input->getArgument('name')));
+            $io->error(sprintf("No service tagged with this name : %s", $input->getArgument('name')));
             return -1;
         }
 
@@ -42,11 +45,14 @@ class WorkerSpawnerCommand extends Command
         $worker = $this->workerContainer->get($input->getArgument('name'));
 
         if (!($worker instanceof ProcessInterface)) {
-            $output->writeln(sprintf("'<error>Registred service does not implement ProcessInterface </error>'", $input->getArgument('name')));
+            $io->error(sprintf("Registred service does not implement ProcessInterface", $input->getArgument('name')));
             return -1;
         }
 
-        $worker->execute();
+        $io->success(sprintf("Registred service does not implement ProcessInterface", $input->getArgument('name')));
+
+        $worker
+            ->execute();
 
         return 0;
     }
