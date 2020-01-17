@@ -35,23 +35,15 @@ abstract class Connectable
      */
     private $type;
 
-    /**
-     * Manager constructor.
-     * @param string $host
-     * @param int $port
-     * @param string $user
-     * @param string $password
-     * @param string $exchange
-     * @param string $type
-     */
-    public function __construct(string $host, int $port, string $user, string $password, string $exchange, string $type)
+
+    public function __construct(array $connectionConfig, array $exchangeConfig)
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->user = $user;
-        $this->password = $password;
-        $this->exchange = $exchange;
-        $this->type = $type;
+        $this->host = $connectionConfig['host'];
+        $this->port = $connectionConfig['port'];
+        $this->user = $connectionConfig['user'];
+        $this->password = $connectionConfig['password'];
+        $this->exchange = $exchangeConfig['exchange'];
+        $this->type = $exchangeConfig['type'];
     }
 
     /**

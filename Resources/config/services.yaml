@@ -3,12 +3,14 @@ services:
     autowire: true
     autoconfigure: true
 
-  Ipedis\Bundle\Rabbit\Service\Connectable:
+  Ipedis\Bundle\Rabbit\Service\OrderConnectable:
     abstract: true
     arguments:
-      $host: "%ipedis_rabbit.connection.host%"
-      $port: "%ipedis_rabbit.connection.port%"
-      $user: "%ipedis_rabbit.connection.user%"
-      $password: "%ipedis_rabbit.connection.password%"
-      $exchange: "%ipedis_rabbit.order.exchange%"
-      $type: "%ipedis_rabbit.order.type%"
+      $connectionConfig: "%ipedis_rabbit.connection%"
+      $exchangeConfig: "%ipedis_rabbit.orderExchange%"
+
+  Ipedis\Bundle\Rabbit\Service\EventConnectable:
+    abstract: true
+    arguments:
+      $connectionConfig: "%ipedis_rabbit.connection%"
+      $exchangeConfig: "%ipedis_rabbit.eventExchange%"

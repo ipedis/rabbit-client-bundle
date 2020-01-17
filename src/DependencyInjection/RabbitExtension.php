@@ -16,6 +16,12 @@ class RabbitExtension extends Extension
 
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter('ipedis_rabbit.connection', $config['connection']);
+        $container->setParameter('ipedis_rabbit.order', $config['order']);
+        $container->setParameter('ipedis_rabbit.event', $config['event']);
+
+
         $loader = new YamlFileLoader(
             $container,
             new FileLocator(__DIR__.'/../../Resources/config')
