@@ -13,15 +13,24 @@ class WorkerContainer
         foreach ($workers as $id => $worker)
         {
             $this->workers[$id] = $worker;
-            dump($this->workers);
         }
     }
 
     /**
      * @param string $name
+     * @return bool
      */
     public function has(string $name)
     {
+        return (!empty($this->workers[$name]));
+    }
 
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function get(string $name)
+    {
+        return $this->workers[$name];
     }
 }

@@ -5,6 +5,7 @@ namespace Ipedis\Bundle\Rabbit\Command;
 
 
 use Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer;
+use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,7 +32,22 @@ class WorkerSpawnerCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->workerContainer->has($input->getArgument('name'));
+
+        if( ! $this->workerContainer->has($input->getArgument('name')) ) {
+            $output->writeln(sprintf("'<error>No service tagged with this name : %s</error>'", $input->getArgument('name')));
+            return -1;
+        }
+
+        /** @var ProcessInterface $worker */
+        $worker = $this->workerContainer->get($input->getArgument('name'));
+
+        if (!($worker instanceof ProcessInterface)) {
+            $output->writeln(sprintf("'<error>Registred service does not implement ProcessInterface </error>'", $input->getArgument('name')));
+            return -1;
+        }
+
+        $worker->execute();
+
         return 0;
     }
 }
