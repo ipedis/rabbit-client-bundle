@@ -24,6 +24,7 @@ Require the library:
         "ipedis/rabbit-client-bundle": "^1.0.0"
     }
 
+----
 
 Configuration
 ==
@@ -45,9 +46,15 @@ on `config/packages` folder, create yaml configuration like following :
         exchange: "publispeak_events"
         type: "topic"
 
+*all configurations have default value so there are all optional*
+
+---
+
 on `config/bundles.php` add `RabbitBundle` as bellow :
 
     Ipedis\Bundle\Rabbit\RabbitBundle::class => ['all' => true]
+
+---
 
 Get Started
 ==
@@ -80,6 +87,7 @@ Create service like following :
         }
     }
 
+----
 
 Create service configuration as following :
 

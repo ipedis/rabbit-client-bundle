@@ -17,24 +17,24 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('connection')
                     ->children()
-                        ->scalarNode('host')->end()
-                        ->integerNode('port')->end()
-                        ->scalarNode('user')->end()
-                        ->scalarNode('password')->end()
+                        ->scalarNode('host')->defaultValue('localhost')->end()
+                        ->integerNode('port')->defaultValue(5672)->end()
+                        ->scalarNode('user')->defaultValue('guest')->end()
+                        ->scalarNode('password')->defaultValue('guest')->end()
                     ->end()
                 ->end() // connection
 
                 ->arrayNode('order')
                     ->children()
-                        ->scalarNode('exchange')->end()
-                        ->scalarNode('type')->end()
+                        ->scalarNode('exchange')->defaultValue('publispeak_orders')->end()
+                        ->scalarNode('type')->defaultValue('topic')->end()
                     ->end()
                 ->end() // order
 
                 ->arrayNode('event')
                     ->children()
-                        ->scalarNode('exchange')->end()
-                        ->scalarNode('type')->end()
+                        ->scalarNode('exchange')->defaultValue('publispeak_events')->end()
+                        ->scalarNode('type')->defaultValue('topic')->end()
                     ->end()
                 ->end() // event
             ->end()
