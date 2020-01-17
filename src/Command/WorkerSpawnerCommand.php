@@ -49,7 +49,7 @@ class WorkerSpawnerCommand extends Command
             return -1;
         }
 
-        $io->success(sprintf("Registred service does not implement ProcessInterface", $input->getArgument('name')));
+        $io->success(sprintf("work %s is up", $input->getArgument('name')));
 
         $worker
             ->execute();
