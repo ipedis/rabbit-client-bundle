@@ -11,7 +11,7 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder('rabbit');
+        $treeBuilder = new TreeBuilder('ipedis_rabbit');
 
         $treeBuilder->getRootNode()
             ->children()

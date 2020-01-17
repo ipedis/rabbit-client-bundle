@@ -6,9 +6,9 @@ services:
   Ipedis\Bundle\Rabbit\Service\Connectable:
     abstract: true
     arguments:
-      $host: "%rabbit.connection.host%"
-      $port: "%rabbit.connection.port%"
-      $user: "%rabbit.connection.user%"
-      $password: "%rabbit.connection.password%"
-      $exchange: "%rabbit.order.exchange%"
-      $type: "%rabbit.order.type%"
+      $host: "%ipedis_rabbit.connection.host%"
+      $port: "%ipedis_rabbit.connection.port%"
+      $user: "%ipedis_rabbit.connection.user%"
+      $password: "%ipedis_rabbit.connection.password%"
+      $exchange: "%ipedis_rabbit.order.exchange%"
+      $type: "%ipedis_rabbit.order.type%"
