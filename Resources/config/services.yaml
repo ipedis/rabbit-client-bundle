@@ -27,3 +27,8 @@ services:
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
       $exchangeConfig: "%ipedis_rabbit.event%"
+
+  Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher:
+    parent: Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable
+    autoconfigure: false
+    autowire: true

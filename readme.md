@@ -29,7 +29,7 @@ Require the library:
 Configuration
 ==
 
-on `config/packages` folder, create yaml configuration like following :
+on `config/packages` folder, create yaml configuration like following:
 
     ipedis_rabbit:
       connection:
@@ -50,7 +50,7 @@ on `config/packages` folder, create yaml configuration like following :
 
 ---
 
-on `config/bundles.php` add `RabbitBundle` as bellow :
+on `config/bundles.php` add `RabbitBundle` as bellow:
 
     Ipedis\Bundle\Rabbit\RabbitBundle::class => ['all' => true]
 
@@ -61,7 +61,7 @@ Get Started
 
 **Create event listener worker**
 
-Create service like following : 
+Create service like following: 
 
     use Closure;
     use Ipedis\Bundle\Rabbit\Service\Connectable\Connectable;
@@ -89,7 +89,7 @@ Create service like following :
 
 ----
 
-Create service configuration as following :
+Create service configuration as following:
 
     App\Service\Binding:
         parent: Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable
@@ -102,3 +102,17 @@ Create service configuration as following :
 
     php bin/console ip:worker:spawner binding
 
+----
+
+**Event Dispatcher**
+
+require service `Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher` and dispatch any event as :
+
+    public function index(EventDispatcher $dispatcher)
+    {
+        $dispatcher->dispatchEvent('publication.was-exported', [
+            'publication' => ['sid' => 1234]
+        ]);
+    }
+
+it will use `connection` and `event` configuration from bundle configuration.
