@@ -4,6 +4,7 @@
 namespace Ipedis\Bundle\Rabbit\Service\Connectable;
 
 
+use Ipedis\Rabbit\Channel\Factory\ChannelFactory;
 use Ipedis\Rabbit\Connector;
 
 abstract class Connectable
@@ -34,9 +35,13 @@ abstract class Connectable
      * @var string
      */
     private $type;
+    /**
+     * @var ChannelFactory
+     */
+    private $channelFactory;
 
 
-    public function __construct(array $connectionConfig, array $exchangeConfig)
+    public function __construct(array $connectionConfig, array $exchangeConfig, ChannelFactory $channelFactory)
     {
         $this->host = $connectionConfig['host'];
         $this->port = $connectionConfig['port'];
@@ -44,6 +49,7 @@ abstract class Connectable
         $this->password = $connectionConfig['password'];
         $this->exchange = $exchangeConfig['exchange'];
         $this->type = $exchangeConfig['type'];
+        $this->channelFactory = $channelFactory;
     }
 
     /**
@@ -86,5 +92,13 @@ abstract class Connectable
     protected function getExchangeName(): string
     {
         return $this->exchange;
+    }
+
+    /**
+     * @return ChannelFactory
+     */
+    public function getChannelFactory(): ChannelFactory
+    {
+        return $this->channelFactory;
     }
 }

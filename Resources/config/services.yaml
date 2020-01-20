@@ -21,12 +21,14 @@ services:
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
       $exchangeConfig: "%ipedis_rabbit.order%"
+      $channelFactory: "@Ipedis\Rabbit\Channel\Factory\ChannelFactory"
 
   Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable:
     abstract: true
     arguments:
       $connectionConfig: "%ipedis_rabbit.connection%"
       $exchangeConfig: "%ipedis_rabbit.event%"
+      $channelFactory: "@Ipedis\Rabbit\Channel\Factory\ChannelFactory"
 
   Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher:
     parent: Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable

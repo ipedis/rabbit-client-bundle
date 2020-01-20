@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "ipedis/rabbit-client",
-            "version": "1.0.2",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "bitbucket:ipedis/rabbit-client.git",
-                "reference": "a770fbfa048fa9dd3a64966f07ab5a9fa084f8bc"
+                "reference": "196b1a4fd45132bf24dabb30ef04ab943549cd7e"
             },
             "require": {
                 "ext-json": "*",
@@ -33,7 +33,7 @@
                 }
             ],
             "description": "Event and Order client library",
-            "time": "2020-01-17T12:04:54+00:00"
+            "time": "2020-01-20T10:24:26+00:00"
         },
         {
             "name": "php-amqplib/php-amqplib",

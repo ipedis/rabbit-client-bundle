@@ -17,6 +17,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('protocol_version')->defaultValue('v1')->end()
                 ->scalarNode('service_name')->end()
+            ->end()
             ->children()
                 ->arrayNode('connection')
                     ->children()
