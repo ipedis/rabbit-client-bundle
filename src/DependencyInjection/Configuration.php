@@ -15,6 +15,9 @@ class Configuration implements ConfigurationInterface
 
         $treeBuilder->getRootNode()
             ->children()
+                ->scalarNode('protocol_version')->defaultValue('v1')->end()
+                ->scalarNode('service_name')->end()
+            ->children()
                 ->arrayNode('connection')
                     ->children()
                         ->scalarNode('host')->defaultValue('localhost')->end()

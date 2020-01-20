@@ -7,6 +7,12 @@ services:
     resource: '../../src/*'
     exclude: '../../src/{DependencyInjection,Entity,RabbitKernel.php}'
 
+
+  Ipedis\Rabbit\Channel\Factory\ChannelFactory:
+    arguments:
+      $protocolVersion: "%ipedis_rabbit.protocol_version%"
+      $serviceName: "%ipedis_rabbit.service_name%"
+
   Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
     arguments: [!tagged { tag: 'ipedis_rabbit.worker', index_by: 'key' }]
 

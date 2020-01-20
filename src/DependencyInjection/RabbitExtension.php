@@ -23,6 +23,9 @@ class RabbitExtension extends Extension
         $container->setParameter('ipedis_rabbit.order', $config['order']);
         $container->setParameter('ipedis_rabbit.event', $config['event']);
 
+        $container->setParameter('ipedis_rabbit.protocol_version', $config['protocol_version']);
+        $container->setParameter('ipedis_rabbit.service_name', $config['service_name']);
+
 
         $loader = new YamlFileLoader(
             $container,

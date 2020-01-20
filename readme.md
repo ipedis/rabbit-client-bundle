@@ -32,6 +32,9 @@ Configuration
 on `config/packages` folder, create yaml configuration like following:
 
     ipedis_rabbit:
+      protocol_version: "v1"
+      service_name: "admin"
+      
       connection:
         host: "localhost"
         port: 5672
@@ -138,7 +141,7 @@ Create service Manager as following:
             $this->connect();
             $anoQueue = $this->bindCallbackToAnonymousQueue([$this,"callback"]);
     
-            $this->publishTask(Worker::QUEUE_NAME,
+            $this->publishTask(Worker::getQueueName(),
                 [
                     "name" => "task"
                 ],
@@ -214,13 +217,9 @@ Create Service Worker as following:
     {
         use \Ipedis\Rabbit\Order\Worker;
     
-        const QUEUE_NAME = 'publispeak.worker';
-    
-    
-    
-        public function getQueueName(): string
+        public static function getQueueName(): string
         {
-            return self::QUEUE_NAME;
+            return OrderChannel::fromString('v1.admin.publication.generate');
         }
     
         protected function getProcessing(): \Closure
