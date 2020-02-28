@@ -84,6 +84,14 @@ abstract class Connectable
         return $this->password;
     }
 
+    /**
+     * @return ChannelFactory
+     */
+    public function getChannelFactory(): ChannelFactory
+    {
+        return $this->channelFactory;
+    }
+
     protected function getExchangeType(): string
     {
         return $this->type;
@@ -92,13 +100,5 @@ abstract class Connectable
     protected function getExchangeName(): string
     {
         return $this->exchange;
-    }
-
-    /**
-     * @return ChannelFactory
-     */
-    public function getChannelFactory(): ChannelFactory
-    {
-        return $this->channelFactory;
     }
 }
