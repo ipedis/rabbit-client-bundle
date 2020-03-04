@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "ipedis/rabbit-client",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "bitbucket:ipedis/rabbit-client.git",
-                "reference": "7bce23379782d22096913e2604811766d2a72d62"
+                "reference": "b03a4d4b9d95d0d06316fe0498784c8b08b56721"
             },
             "require": {
                 "ext-json": "*",
@@ -35,7 +35,7 @@
                 }
             ],
             "description": "Event and Order client library",
-            "time": "2020-03-04T08:50:44+00:00"
+            "time": "2020-03-04T11:54:44+00:00"
         },
         {
             "name": "opis/json-schema",
