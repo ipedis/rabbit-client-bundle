@@ -19,6 +19,8 @@ use Opis\JsonSchema\Validator;
  */
 class MessagePayloadValidator implements ValidatorInterface
 {
+    const CHANNEL_NAME_SEPARATOR = '.';
+
     /**
      * Validator library
      *
@@ -50,7 +52,7 @@ class MessagePayloadValidator implements ValidatorInterface
         /**
          * Load schema for channel
          */
-        $schema = $this->getSchemaForChannel($messagePayload->getChannel());
+        $schema = $this->getJsonSchemaForChannel($messagePayload->getChannel());
 
         /**
          * Transform data to object
@@ -72,15 +74,21 @@ class MessagePayloadValidator implements ValidatorInterface
      * @return Schema
      * @throws MessagePayloadInvalidSchemaException
      */
-    private function getSchemaForChannel(string $channel): Schema
+    private function getJsonSchemaForChannel(string $channel): Schema
     {
-        $schemaFilePath = str_replace('.', DIRECTORY_SEPARATOR, $channel);
-        $schemaAbsolutePath = sprintf('%s/%s/schema.json', $this->schemaBasePath, $schemaFilePath);
+        /**
+         * Get json file path from channel name
+         */
+        $jsonFilePath = str_replace(self::CHANNEL_NAME_SEPARATOR, DIRECTORY_SEPARATOR, $channel);
 
-        if (!file_exists($schemaAbsolutePath)) {
+        /**
+         * Absolute location of json file
+         */
+        $jsonFileAbsolutePath = sprintf('%s/%s/schema.json', $this->schemaBasePath, $jsonFilePath);
+        if (!file_exists($jsonFileAbsolutePath)) {
             throw new MessagePayloadInvalidSchemaException(sprintf('No schema found for channel {%s}', $channel));
         }
 
-        return Schema::fromJsonString(file_get_contents($schemaAbsolutePath));
+        return Schema::fromJsonString(file_get_contents($jsonFileAbsolutePath));
     }
 }
