@@ -4,6 +4,7 @@
 namespace Ipedis\Bundle\Rabbit\Service\Connectable;
 
 
+use Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator;
 use Ipedis\Rabbit\Channel\Factory\ChannelFactory;
 use Ipedis\Rabbit\Connector;
 
@@ -40,9 +41,17 @@ abstract class Connectable
      */
     private $channelFactory;
 
+    /**
+     * @var MessagePayloadValidator
+     */
+    private $messagePayloadValidator;
 
-    public function __construct(array $connectionConfig, array $exchangeConfig, ChannelFactory $channelFactory)
-    {
+    public function __construct(
+        array $connectionConfig,
+        array $exchangeConfig,
+        ChannelFactory $channelFactory,
+        MessagePayloadValidator $messagePayloadValidator
+    ) {
         $this->host = $connectionConfig['host'];
         $this->port = $connectionConfig['port'];
         $this->user = $connectionConfig['user'];
@@ -50,6 +59,7 @@ abstract class Connectable
         $this->exchange = $exchangeConfig['exchange'];
         $this->type = $exchangeConfig['type'];
         $this->channelFactory = $channelFactory;
+        $this->messagePayloadValidator = $messagePayloadValidator;
     }
 
     /**
@@ -92,11 +102,25 @@ abstract class Connectable
         return $this->channelFactory;
     }
 
+    /**
+     * @return MessagePayloadValidator
+     */
+    public function getMessagePayloadValidator(): MessagePayloadValidator
+    {
+        return $this->messagePayloadValidator;
+    }
+
+    /**
+     * @return string
+     */
     protected function getExchangeType(): string
     {
         return $this->type;
     }
 
+    /**
+     * @return string
+     */
     protected function getExchangeName(): string
     {
         return $this->exchange;

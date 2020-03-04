@@ -41,6 +41,12 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('type')->defaultValue('topic')->end()
                     ->end()
                 ->end() // event
+
+                ->arrayNode('validation')
+                    ->children()
+                        ->scalarNode('schema_base_path')->end()
+                    ->end()
+                ->end() // validation
             ->end()
         ;
 

@@ -29,8 +29,14 @@ services:
       $connectionConfig: "%ipedis_rabbit.connection%"
       $exchangeConfig: "%ipedis_rabbit.event%"
       $channelFactory: '@Ipedis\Rabbit\Channel\Factory\ChannelFactory'
+      $messagePayloadValidator: Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator
 
   Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher:
     parent: Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable
     autoconfigure: false
     autowire: true
+
+  Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator:
+    arguments:
+      $validatorConfig: "%ipedis_rabbit.validation%"
+      $validator: '@Opis\JsonSchema\Validator'
