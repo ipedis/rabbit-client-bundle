@@ -19,6 +19,7 @@ use Opis\JsonSchema\Validator;
  */
 class MessagePayloadValidator implements ValidatorInterface
 {
+    const DEV_ENV_SHORTCODE = 'dev';
     const CHANNEL_NAME_SEPARATOR = '.';
 
     /**
@@ -35,10 +36,27 @@ class MessagePayloadValidator implements ValidatorInterface
      */
     private $schemaBasePath;
 
-    public function __construct(array $validatorConfig, Validator $validator)
+    /**
+     * Disable validation on dev mode
+     *
+     * @var bool $disableOnDevMode
+     */
+    private $disableOnDevMode;
+
+    /**
+     * Current working environment
+     * (dev, prod, test, etc...)
+     *
+     * @var string
+     */
+    private $currentEnv;
+
+    public function __construct(array $validatorConfig, string $currentEnv)
     {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
-        $this->validator = $validator;
+        $this->schemaBasePath = $validatorConfig['disable_on_dev_mode'];
+        $this->currentEnv     = $currentEnv;
+        $this->validator      = new Validator();
     }
 
     /**
@@ -49,6 +67,18 @@ class MessagePayloadValidator implements ValidatorInterface
      */
     public function validate(MessagePayloadInterface $messagePayload)
     {
+        /**
+         * Disable validation of message payload if
+         * - on dev mode and
+         * - setting is activated
+         */
+        if (
+            $this->currentEnv === self::DEV_ENV_SHORTCODE &&
+            $this->disableOnDevMode
+        ) {
+            return;
+        }
+
         /**
          * Load schema for channel
          */
