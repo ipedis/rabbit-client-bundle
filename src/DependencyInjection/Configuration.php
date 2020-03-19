@@ -52,8 +52,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end() // event
 
-
-
                 ->arrayNode('validation')
                     ->children()
                         ->booleanNode('disable_on_dev_mode')->defaultFalse()->end()
