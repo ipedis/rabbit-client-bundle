@@ -39,8 +39,20 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('exchange')->defaultValue('publispeak_events')->end()
                         ->scalarNode('type')->defaultValue('topic')->end()
+                        ->scalarNode('recovery_endpoint')->defaultValue('')->end()
+                        ->arrayNode('http_signature')
+                            ->children()
+                                ->scalarNode('secret_key')->defaultValue('dncqLx7W1ildyVduBuDK9BpfTJNfGU')->end()
+                                ->scalarNode('algorithm')->defaultValue('hmac-sha256')->end()
+                                ->arrayNode('headers')
+                                    ->scalarPrototype()->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end() // event
+
+
 
                 ->arrayNode('validation')
                     ->children()
