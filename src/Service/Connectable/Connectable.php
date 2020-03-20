@@ -31,10 +31,6 @@ abstract class Connectable
     /**
      * @var string
      */
-    private $exchange;
-    /**
-     * @var string
-     */
     private $type;
     /**
      * @var ChannelFactory
