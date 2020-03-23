@@ -32,6 +32,12 @@ abstract class Connectable
      * @var string
      */
     private $type;
+
+    /**
+     * @var string
+     */
+    private $exchangeName;
+
     /**
      * @var ChannelFactory
      */
@@ -52,7 +58,7 @@ abstract class Connectable
         $this->port = $connectionConfig['port'];
         $this->user = $connectionConfig['user'];
         $this->password = $connectionConfig['password'];
-        $this->exchange = $exchangeConfig['exchange'];
+        $this->exchangeName = $exchangeConfig['exchange'];
         $this->type = $exchangeConfig['type'];
         $this->channelFactory = $channelFactory;
         $this->messagePayloadValidator = $messagePayloadValidator;
@@ -119,6 +125,6 @@ abstract class Connectable
      */
     protected function getExchangeName(): string
     {
-        return $this->exchange;
+        return $this->exchangeName;
     }
 }
