@@ -306,11 +306,11 @@
         },
         {
             "name": "ipedis/rabbit-client",
-            "version": "1.1.6",
+            "version": "1.1.7",
             "source": {
                 "type": "git",
                 "url": "bitbucket:ipedis/rabbit-client.git",
-                "reference": "b5eb8e4e04bd7fec24f61682e532b6dd34768a2e"
+                "reference": "cb584fc353d7785ab6ccdc2de4ef88a760883805"
             },
             "require": {
                 "99designs/http-signatures-guzzlehttp": "^2.0",
@@ -335,7 +335,7 @@
                 }
             ],
             "description": "Event and Order client library",
-            "time": "2020-04-18T23:57:46+00:00"
+            "time": "2020-04-19T00:12:12+00:00"
         },
         {
             "name": "opis/json-schema",
