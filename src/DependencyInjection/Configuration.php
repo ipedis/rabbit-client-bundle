@@ -58,6 +58,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('validation')
                     ->children()
                         ->booleanNode('disable_on_dev_mode')->defaultFalse()->end()
+                        ->booleanNode('enabled')->defaultTrue()->end()
                         ->scalarNode('schema_base_path')->defaultValue('%kernel.project_dir%/vendor/ipedis/rabbit-client-bundle/Resources/schema')->end()
                     ->end()
                 ->end() // validation
