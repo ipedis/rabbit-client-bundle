@@ -44,6 +44,12 @@ class MessagePayloadValidator implements ValidatorInterface
     private $disableOnDevMode;
 
     /**
+     * Enable or bypass validation
+     * @var bool
+     */
+    private $enableValidation;
+
+    /**
      * Current working environment
      * (dev, prod, test, etc...)
      *
@@ -55,6 +61,7 @@ class MessagePayloadValidator implements ValidatorInterface
     {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
         $this->disableOnDevMode = $validatorConfig['disable_on_dev_mode'];
+        $this->enableValidation = $validatorConfig['enabled'];
         $this->currentEnv = $currentEnv;
         $this->validator = new Validator();
     }
@@ -73,8 +80,8 @@ class MessagePayloadValidator implements ValidatorInterface
          * - setting is activated
          */
         if (
-            $this->currentEnv === self::DEV_ENV_SHORTCODE &&
-            $this->disableOnDevMode
+            ($this->currentEnv === self::DEV_ENV_SHORTCODE &&
+            $this->disableOnDevMode) || !$this->enableValidation
         ) {
             return;
         }
