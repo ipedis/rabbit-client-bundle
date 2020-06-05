@@ -42,6 +42,11 @@ services:
     autoconfigure: false
     autowire: true
 
+  Ipedis\Bundle\Rabbit\Service\Manager\WorkflowManager:
+    parent: Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable
+    autoconfigure: false
+    autowire: true
+
   Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator:
     arguments:
       $validatorConfig: "%ipedis_rabbit.validation%"
