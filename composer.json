@@ -11,7 +11,7 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">7.2.0",
-        "ipedis/rabbit-client": "^1.0.0",
+        "ipedis/rabbit-client": "^1.2.7",
         "symfony/dependency-injection": "^4.0.10 || ^5.0",
         "symfony/config": "~4.0 || ^5.0",
         "symfony/console": "~4.0 || ^5.0",
@@ -27,6 +27,10 @@
         {
             "type": "vcs",
             "url": "bitbucket:ipedis/rabbit-client.git"
+        },
+        {
+            "type": "vcs",
+            "url": "bitbucket:ipedis/http-signature.git"
         }
     ]
 }

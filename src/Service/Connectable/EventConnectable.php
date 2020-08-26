@@ -22,19 +22,6 @@ abstract class EventConnectable extends Connectable
      */
     private $secretKey;
 
-    /**
-     * Hashing algorithm used for signing request
-     *
-     * @var string
-     */
-    private $hashingAlgorithm;
-
-    /**
-     * List of headers to include in signature.
-     *
-     * @var array
-     */
-    private $headersList;
 
     public function __construct(
         array $connectionConfig,
@@ -46,8 +33,6 @@ abstract class EventConnectable extends Connectable
 
         $this->recoveryEventStoreEndpoint = $exchangeConfig['recovery_endpoint'];
         $this->secretKey = $exchangeConfig['http_signature']['secret_key'];
-        $this->hashingAlgorithm = $exchangeConfig['http_signature']['algorithm'];
-        $this->headersList = $exchangeConfig['http_signature']['headers'];
     }
 
     /**
@@ -70,23 +55,8 @@ abstract class EventConnectable extends Connectable
         return $this->secretKey;
     }
 
-    /**
-     * Hashing algorithm used for signing request.
-     *
-     * @return string
-     */
-    public function getHashingAlgorithm(): string
+    public function getSignatureKey(): string
     {
-        return $this->hashingAlgorithm;
-    }
-
-    /**
-     * List of headers to include in signature.
-     *
-     * @return array
-     */
-    public function getHeadersList(): array
-    {
-        return $this->headersList;
+        return $this->getSecretKey();
     }
 }
