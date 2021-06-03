@@ -71,6 +71,15 @@ abstract class EventConnectable extends Connectable
     }
 
     /**
+     * alias of getSecretKey, must be rename according to http-signature library.
+     * @return string
+     */
+    public function getSignatureKey(): string
+    {
+        return $this->getSecretKey();
+    }
+
+    /**
      * Hashing algorithm used for signing request.
      *
      * @return string
