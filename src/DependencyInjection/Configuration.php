@@ -32,6 +32,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('exchange')->defaultValue('publispeak_orders')->end()
                         ->scalarNode('type')->defaultValue('topic')->end()
+                        ->scalarNode('env')->defaultValue('dev')->end()
                     ->end()
                 ->end() // order
 

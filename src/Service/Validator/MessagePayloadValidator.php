@@ -9,6 +9,7 @@ use Ipedis\Rabbit\MessagePayload\Validator\ValidatorInterface;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
+use function GuzzleHttp\Psr7\str;
 
 /**
  * Default Validator for validating rabbitMQ message payload
@@ -27,27 +28,27 @@ class MessagePayloadValidator implements ValidatorInterface
      *
      * @var Validator $validator
      */
-    private $validator;
+    private Validator $validator;
 
     /**
      * Location of json schema files
      *
      * @var string $schemaBasePath
      */
-    private $schemaBasePath;
+    private string $schemaBasePath;
 
     /**
      * Disable validation on dev mode
      *
      * @var bool $disableOnDevMode
      */
-    private $disableOnDevMode;
+    private bool $disableOnDevMode;
 
     /**
      * Enable or bypass validation
      * @var bool
      */
-    private $enableValidation;
+    private bool $enableValidation;
 
     /**
      * Current working environment
@@ -55,15 +56,23 @@ class MessagePayloadValidator implements ValidatorInterface
      *
      * @var string
      */
-    private $currentEnv;
+    private string $currentEnv;
+    /**
+     * @var string
+     */
+    private string $queuePrefix;
 
-    public function __construct(array $validatorConfig, string $currentEnv)
-    {
+    public function __construct(
+        array $validatorConfig,
+        string $currentEnv,
+        string $queuePrefix
+    ) {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
         $this->disableOnDevMode = $validatorConfig['disable_on_dev_mode'];
         $this->enableValidation = $validatorConfig['enabled'];
         $this->currentEnv = $currentEnv;
         $this->validator = new Validator();
+        $this->queuePrefix = $queuePrefix;
     }
 
     /**
@@ -96,7 +105,6 @@ class MessagePayloadValidator implements ValidatorInterface
          */
         $data = json_decode($messagePayload->getStringifyData());
 
-        /** @var ValidationResult $result */
         $result = $this->validator->schemaValidation($data, $schema);
 
         if (!$result->isValid()) {
@@ -116,6 +124,10 @@ class MessagePayloadValidator implements ValidatorInterface
         /**
          * Get json file path from channel name
          */
+        if (!empty($this->queuePrefix)) {
+            $channel = str_replace('-'.$this->queuePrefix, '', $channel);
+        }
+
         $jsonFilePath = str_replace(self::CHANNEL_NAME_SEPARATOR, DIRECTORY_SEPARATOR, $channel);
 
         /**
