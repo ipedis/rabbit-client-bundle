@@ -51,4 +51,4 @@ services:
     arguments:
       $validatorConfig: "%ipedis_rabbit.validation%"
       $currentEnv: "%kernel.environment%"
-      $queuePrefix: "%ipedis_rabbit.order.env%"
+      $queuePrefix: "%ipedis_rabbit.order%"

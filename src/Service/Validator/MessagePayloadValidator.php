@@ -65,14 +65,14 @@ class MessagePayloadValidator implements ValidatorInterface
     public function __construct(
         array $validatorConfig,
         string $currentEnv,
-        string $queuePrefix
+        array $orderConfig
     ) {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
         $this->disableOnDevMode = $validatorConfig['disable_on_dev_mode'];
         $this->enableValidation = $validatorConfig['enabled'];
         $this->currentEnv = $currentEnv;
         $this->validator = new Validator();
-        $this->queuePrefix = $queuePrefix;
+        $this->queuePrefix = (empty($orderConfig['env'])) ? '' : $orderConfig['env'];
     }
 
     /**
