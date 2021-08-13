@@ -15,38 +15,40 @@ abstract class Connectable
     /**
      * @var string
      */
-    private $host;
+    private string$host;
     /**
      * @var int
      */
-    private $port;
+    private int $port;
     /**
      * @var string
      */
-    private $user;
+    private string $user;
     /**
      * @var string
      */
-    private $password;
+    private string $password;
     /**
      * @var string
      */
-    private $type;
+    private string $type;
 
     /**
      * @var string
      */
-    private $exchangeName;
+    private string $exchangeName;
 
     /**
      * @var ChannelFactory
      */
-    private $channelFactory;
+    private ChannelFactory $channelFactory;
 
     /**
      * @var MessagePayloadValidator
      */
-    private $messagePayloadValidator;
+    private MessagePayloadValidator $messagePayloadValidator;
+
+    private array $exchangeConfig;
 
     public function __construct(
         array $connectionConfig,
@@ -60,6 +62,7 @@ abstract class Connectable
         $this->password = $connectionConfig['password'];
         $this->exchangeName = $exchangeConfig['exchange'];
         $this->type = $exchangeConfig['type'];
+        $this->exchangeConfig = $exchangeConfig;
         $this->channelFactory = $channelFactory;
         $this->messagePayloadValidator = $messagePayloadValidator;
     }
