@@ -48,7 +48,7 @@ abstract class Connectable
      */
     private MessagePayloadValidator $messagePayloadValidator;
 
-    private array $exchangeConfig;
+    protected array $exchangeConfig;
 
     public function __construct(
         array $connectionConfig,

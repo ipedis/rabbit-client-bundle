@@ -7,6 +7,6 @@ abstract class OrderConnectable extends Connectable
 {
     public function getQueuePrefix(): string
     {
-        return (empty($orderConfig['env'])) ? '' : $orderConfig['env'];
+        return (empty($this->exchangeConfig['env'])) ? '' : $this->exchangeConfig['env'];
     }
 }
