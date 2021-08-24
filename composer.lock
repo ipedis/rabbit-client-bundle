@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b118f9c720bdba555d1cc3ca1dc7da50",
+    "content-hash": "b1de64d75fce26d6c152d89314714e49",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -309,11 +309,11 @@
         },
         {
             "name": "ipedis/rabbit-client",
-            "version": "1.2.11",
+            "version": "1.2.13",
             "source": {
                 "type": "git",
                 "url": "bitbucket:ipedis/rabbit-client.git",
-                "reference": "8c73c5a54f47b3f463d79fde2e38ae10b6d74f00"
+                "reference": "3031e59719b2c3960c5c8b6e315d1f597747f9d4"
             },
             "require": {
                 "ext-amqp": "^1.9",
@@ -360,7 +360,7 @@
                 }
             ],
             "description": "Event and Order client library",
-            "time": "2021-08-09T11:29:40+00:00"
+            "time": "2021-08-24T05:50:57+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -4847,7 +4847,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">7.2.0",
+        "php": ">=7.4.0",
         "ext-json": "*"
     },
     "platform-dev": [],
