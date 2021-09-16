@@ -52,3 +52,7 @@ services:
       $validatorConfig: "%ipedis_rabbit.validation%"
       $currentEnv: "%kernel.environment%"
       $orderConfig: "%ipedis_rabbit.order%"
+
+  Ipedis\Bundle\Rabbit\Service\Logger\RabbitEventLogger:
+    arguments:
+      $logger: '@monolog.logger.rabbit'
