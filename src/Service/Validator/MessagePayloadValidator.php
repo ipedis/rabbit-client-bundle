@@ -63,12 +63,17 @@ class MessagePayloadValidator implements ValidatorInterface
      * @var RabbitEventLogger
      */
     private RabbitEventLogger $logger;
+    /**
+     * @var JsonSchemaContainer
+     */
+    private JsonSchemaContainer $schemaContainer;
 
     public function __construct(
         array $validatorConfig,
         string $currentEnv,
         array $orderConfig,
-        RabbitEventLogger $logger
+        RabbitEventLogger $logger,
+        JsonSchemaContainer $schemaContainer
     ) {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
         $this->disableOnDevMode = $validatorConfig['disable_on_dev_mode'];
@@ -77,6 +82,7 @@ class MessagePayloadValidator implements ValidatorInterface
         $this->validator = new Validator();
         $this->queuePrefix = (empty($orderConfig['env'])) ? '' : $orderConfig['env'];
         $this->logger = $logger;
+        $this->schemaContainer = $schemaContainer;
     }
 
     /**
@@ -142,6 +148,13 @@ class MessagePayloadValidator implements ValidatorInterface
         $jsonFilePath = $this->getJsonPath($channel);
 
         /**
+         *  check before if schema is on schema container
+         */
+        if ($this->schemaContainer->hasSchema($jsonFilePath)) {
+            return Schema::fromJsonString($this->schemaContainer->getSchema($jsonFilePath));
+        }
+
+        /**
          * Absolute location of json file
          */
         $jsonFileAbsolutePath = sprintf('%s/%s/schema.json', $this->schemaBasePath, $jsonFilePath);
@@ -149,7 +162,22 @@ class MessagePayloadValidator implements ValidatorInterface
             throw new MessagePayloadInvalidSchemaException(sprintf('No schema found for channel {%s}', $channel));
         }
 
-        return Schema::fromJsonString(file_get_contents($jsonFileAbsolutePath));
+        /** get content of schema.json */
+        $jsonSchema = file_get_contents($jsonFileAbsolutePath);
+
+        /** add content of schema.json on schemaContainer */
+        $this->schemaContainer->addSchema($jsonFilePath, $jsonSchema);
+
+        return Schema::fromJsonString($jsonSchema);
+    }
+
+    /**
+     * @param string $channel
+     * @param array $schema
+     */
+    public function addJsonSchemaFromArray(string $channel, array $schema): void
+    {
+        $this->schemaContainer->addSchema($this->getJsonPath($channel), json_encode($schema));
     }
 
     /**
