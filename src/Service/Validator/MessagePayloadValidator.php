@@ -3,14 +3,12 @@
 namespace Ipedis\Bundle\Rabbit\Service\Validator;
 
 
+use Ipedis\Bundle\Rabbit\Service\Logger\RabbitEventLogger;
 use Ipedis\Rabbit\Exception\MessagePayload\MessagePayloadInvalidSchemaException;
 use Ipedis\Rabbit\MessagePayload\MessagePayloadInterface;
 use Ipedis\Rabbit\MessagePayload\Validator\ValidatorInterface;
 use Opis\JsonSchema\Schema;
-use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
-use function GuzzleHttp\Psr7\str;
-
 /**
  * Default Validator for validating rabbitMQ message payload
  * against predefined json schema
@@ -61,11 +59,21 @@ class MessagePayloadValidator implements ValidatorInterface
      * @var string
      */
     private string $queuePrefix;
+    /**
+     * @var RabbitEventLogger
+     */
+    private RabbitEventLogger $logger;
+    /**
+     * @var JsonSchemaContainer
+     */
+    private JsonSchemaContainer $schemaContainer;
 
     public function __construct(
         array $validatorConfig,
         string $currentEnv,
-        array $orderConfig
+        array $orderConfig,
+        RabbitEventLogger $logger,
+        JsonSchemaContainer $schemaContainer
     ) {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
         $this->disableOnDevMode = $validatorConfig['disable_on_dev_mode'];
@@ -73,6 +81,8 @@ class MessagePayloadValidator implements ValidatorInterface
         $this->currentEnv = $currentEnv;
         $this->validator = new Validator();
         $this->queuePrefix = (empty($orderConfig['env'])) ? '' : $orderConfig['env'];
+        $this->logger = $logger;
+        $this->schemaContainer = $schemaContainer;
     }
 
     /**
@@ -103,12 +113,23 @@ class MessagePayloadValidator implements ValidatorInterface
         /**
          * Transform data to object
          */
-        $data = json_decode($messagePayload->getStringifyData());
+        $data = $messagePayload->getData();
 
         $result = $this->validator->schemaValidation($data, $schema);
 
         if (!$result->isValid()) {
-            throw new MessagePayloadInvalidSchemaException(sprintf('Invalid schema found for channel {%s}', $messagePayload->getChannel()));
+            $this->logger->writeError(
+                sprintf(
+                    '[RABBIT][MESSAGE_PAYLOAD_VALIDATOR] Invalid schema found for channel {%s}',
+                    $messagePayload->getChannel()
+                ),
+                [
+                    'error' => $result->getErrors()
+                ]
+            );
+            throw new MessagePayloadInvalidSchemaException(
+                sprintf('Invalid schema found for channel {%s}', $messagePayload->getChannel())
+            );
         }
     }
 
@@ -124,11 +145,14 @@ class MessagePayloadValidator implements ValidatorInterface
         /**
          * Get json file path from channel name
          */
-        if (!empty($this->queuePrefix)) {
-            $channel = str_replace('-'.$this->queuePrefix, '', $channel);
-        }
+        $jsonFilePath = $this->getJsonPath($channel);
 
-        $jsonFilePath = str_replace(self::CHANNEL_NAME_SEPARATOR, DIRECTORY_SEPARATOR, $channel);
+        /**
+         *  check before if schema is on schema container
+         */
+        if ($this->schemaContainer->hasSchema($jsonFilePath)) {
+            return Schema::fromJsonString($this->schemaContainer->getSchema($jsonFilePath));
+        }
 
         /**
          * Absolute location of json file
@@ -138,6 +162,36 @@ class MessagePayloadValidator implements ValidatorInterface
             throw new MessagePayloadInvalidSchemaException(sprintf('No schema found for channel {%s}', $channel));
         }
 
-        return Schema::fromJsonString(file_get_contents($jsonFileAbsolutePath));
+        /** get content of schema.json */
+        $jsonSchema = file_get_contents($jsonFileAbsolutePath);
+
+        /** add content of schema.json on schemaContainer */
+        $this->schemaContainer->addSchema($jsonFilePath, $jsonSchema);
+
+        return Schema::fromJsonString($jsonSchema);
+    }
+
+    /**
+     * @param string $channel
+     * @param array $schema
+     */
+    public function addJsonSchemaFromArray(string $channel, array $schema): void
+    {
+        $this->schemaContainer->addSchema($this->getJsonPath($channel), json_encode($schema));
+    }
+
+    /**
+     * Format channel to get json path
+     * @param string $channel
+     * @return string
+     */
+    private function getJsonPath(string $channel): string
+    {
+        if (!empty($this->queuePrefix)) {
+            //string to replace
+            $search = ['-' . $this->queuePrefix, $this->queuePrefix . '.'];
+            $channel = str_replace($search, '', $channel);
+        }
+        return str_replace(self::CHANNEL_NAME_SEPARATOR, DIRECTORY_SEPARATOR, $channel);
     }
 }
