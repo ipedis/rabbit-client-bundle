@@ -140,3 +140,6 @@ modules.xml
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/linux,macos,composer,phpstorm+all
+.phpunit.result.cache
+tests/ExampleTest.php
+tests/Pest.php

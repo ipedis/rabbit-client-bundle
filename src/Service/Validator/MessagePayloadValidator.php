@@ -113,7 +113,7 @@ class MessagePayloadValidator implements ValidatorInterface
         /**
          * Transform data to object
          */
-        $data = $messagePayload->getData();
+        $data = json_decode($messagePayload->getStringifyData());
 
         $result = $this->validator->schemaValidation($data, $schema);
 
