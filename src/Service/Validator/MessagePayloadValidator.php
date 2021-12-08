@@ -115,16 +115,18 @@ class MessagePayloadValidator implements ValidatorInterface
          */
         $data = json_decode($messagePayload->getStringifyData());
 
-        $result = $this->validator->schemaValidation($data, $schema);
+        $error = $this->validator->schemaValidation($data, $schema);
 
-        if (!$result->isValid()) {
+        if (!is_null($error)) {
             $this->logger->writeError(
                 sprintf(
                     '[RABBIT][MESSAGE_PAYLOAD_VALIDATOR] Invalid schema found for channel {%s}',
                     $messagePayload->getChannel()
                 ),
                 [
-                    'error' => $result->getErrors()
+                    'error'     => $error->message(),
+                    'keyword'   => $error->keyword(),
+                    'args'      => $error->args(),
                 ]
             );
             throw new MessagePayloadInvalidSchemaException(
@@ -150,34 +152,43 @@ class MessagePayloadValidator implements ValidatorInterface
         /**
          *  check before if schema is on schema container
          */
-        if ($this->schemaContainer->hasSchema($jsonFilePath)) {
-            return Schema::fromJsonString($this->schemaContainer->getSchema($jsonFilePath));
+        if (!$this->schemaContainer->hasSchema($jsonFilePath)) {
+            /**
+             * Absolute location of json file
+             */
+            $jsonFileAbsolutePath = sprintf('%s/%s/schema.json', $this->schemaBasePath, $jsonFilePath);
+            if (!file_exists($jsonFileAbsolutePath)) {
+                throw new MessagePayloadInvalidSchemaException(sprintf('No schema found for channel {%s}', $channel));
+            }
+
+            /** get content of schema.json */
+            $jsonSchema = json_decode(file_get_contents($jsonFileAbsolutePath), false);
+
+            /** add content of schema.json on schemaContainer */
+            $this->schemaContainer->addSchema($jsonFilePath, $jsonSchema);
         }
 
-        /**
-         * Absolute location of json file
-         */
-        $jsonFileAbsolutePath = sprintf('%s/%s/schema.json', $this->schemaBasePath, $jsonFilePath);
-        if (!file_exists($jsonFileAbsolutePath)) {
-            throw new MessagePayloadInvalidSchemaException(sprintf('No schema found for channel {%s}', $channel));
-        }
-
-        /** get content of schema.json */
-        $jsonSchema = file_get_contents($jsonFileAbsolutePath);
-
-        /** add content of schema.json on schemaContainer */
-        $this->schemaContainer->addSchema($jsonFilePath, $jsonSchema);
-
-        return Schema::fromJsonString($jsonSchema);
+        return $this->validator->loader()->loadObjectSchema($this->schemaContainer->getSchema($jsonFilePath));
     }
 
     /**
+     * @deprecated Replaced by addJsonSchema will be removed on the version 2.1
      * @param string $channel
      * @param array $schema
      */
     public function addJsonSchemaFromArray(string $channel, array $schema): void
     {
-        $this->schemaContainer->addSchema($this->getJsonPath($channel), json_encode($schema));
+        $this->addJsonSchema($channel, json_decode(json_encode($schema), false));
+    }
+
+    /**
+     * @param string $channel
+     * @param object $schema
+     * @return void
+     */
+    public function addJsonSchema(string $channel, object $schema): void
+    {
+        $this->schemaContainer->addSchema($this->getJsonPath($channel), $schema);
     }
 
     /**

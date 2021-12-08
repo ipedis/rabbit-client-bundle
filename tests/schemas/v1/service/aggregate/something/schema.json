@@ -1,0 +1,13 @@
+{
+  "type":"object",
+  "properties": {
+    "hasToFail": {
+      "type":"boolean"
+    },
+    "name":{
+      "type":"string"
+    }
+  },
+  "required": ["hasToFail", "name"],
+  "additionalProperties":false
+}
