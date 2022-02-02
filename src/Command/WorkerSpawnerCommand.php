@@ -18,7 +18,7 @@ class WorkerSpawnerCommand extends Command
     /**
      * @var WorkerContainer
      */
-    private $workerContainer;
+    private WorkerContainer $workerContainer;
 
     public function __construct(WorkerContainer $workerContainer, string $name = null)
     {
@@ -53,6 +53,6 @@ class WorkerSpawnerCommand extends Command
         $worker
             ->execute();
 
-        return 0;
+        return self::SUCCESS;
     }
 }

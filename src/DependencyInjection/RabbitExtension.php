@@ -46,7 +46,7 @@ class RabbitExtension extends Extension
         }
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return "ipedis_rabbit";
     }
