@@ -497,11 +497,11 @@
         },
         {
             "name": "ipedis/rabbit-client",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "bitbucket:ipedis/rabbit-client.git",
-                "reference": "50658801fac41530bb44646acc5eed864bd6acb2"
+                "reference": "c4f26b685982b089addd7bac3a9606177455c3db"
             },
             "require": {
                 "ext-amqp": "^1.9",
@@ -548,7 +548,7 @@
                 }
             ],
             "description": "Event and Order client library",
-            "time": "2021-12-08T05:00:49+00:00"
+            "time": "2022-02-03T08:56:17+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -5470,5 +5470,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
