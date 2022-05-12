@@ -497,19 +497,20 @@
         },
         {
             "name": "ipedis/rabbit-client",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "bitbucket:ipedis/rabbit-client.git",
-                "reference": "c4f26b685982b089addd7bac3a9606177455c3db"
+                "reference": "767ebc50d962a242cf248d504d558335d728d575"
             },
             "require": {
                 "ext-amqp": "^1.9",
                 "ext-json": "*",
+                "filp/whoops": "^2.14",
                 "guzzlehttp/guzzle": "~6.0",
                 "ipedis/http-signature": "^1.0.0",
-                "opis/json-schema": "^2.0",
-                "php": ">=7.4",
+                "opis/json-schema": "^2.3",
+                "php": ">=8.0",
                 "phpunit/phpunit": "^9.5",
                 "symfony/polyfill-uuid": "^1.14"
             },
@@ -548,7 +549,7 @@
                 }
             ],
             "description": "Event and Order client library",
-            "time": "2022-02-03T08:56:17+00:00"
+            "time": "2022-05-12T07:11:36+00:00"
         },
         {
             "name": "monolog/monolog",
