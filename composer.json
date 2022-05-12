@@ -11,7 +11,7 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=7.4.0",
-        "ipedis/rabbit-client": "^2.0",
+        "ipedis/rabbit-client": "2.0.2",
         "symfony/dependency-injection": "^5.0",
         "symfony/config": "^5.0",
         "symfony/console": "^5.0",
