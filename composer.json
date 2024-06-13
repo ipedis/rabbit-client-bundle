@@ -8,14 +8,14 @@
             "email": "yanis@ipedis.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
-        "php": ">=7.4.0",
-        "ipedis/rabbit-client": "^2.0",
-        "symfony/dependency-injection": "^5.0||^6.0",
-        "symfony/config": "^5.0||^6.0",
-        "symfony/console": "^5.0||^6.0",
-        "symfony/http-kernel": "^5.0||^6.0",
+        "php": ">=8.2.0",
+        "ipedis/rabbit-client": "dev-update_symfony-6.4",
+        "symfony/dependency-injection": "^5.0||^6.0||^6.4",
+        "symfony/config": "^5.0||^6.0||^6.4",
+        "symfony/console": "^5.0||^6.0||^6.4",
+        "symfony/http-kernel": "^5.0||^6.0||^6.4",
         "ext-json": "*",
         "symfony/monolog-bundle": "^3.7",
         "pestphp/pest": "^1.18"
@@ -34,5 +34,10 @@
             "type": "vcs",
             "url": "bitbucket:ipedis/http-signature.git"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }
