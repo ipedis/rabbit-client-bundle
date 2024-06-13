@@ -8,10 +8,10 @@
             "email": "yanis@ipedis.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">=8.2.0",
-        "ipedis/rabbit-client": "dev-update_symfony-6.4",
+        "ipedis/rabbit-client": "^2.0",
         "symfony/dependency-injection": "^5.0||^6.0||^6.4",
         "symfony/config": "^5.0||^6.0||^6.4",
         "symfony/console": "^5.0||^6.0||^6.4",
