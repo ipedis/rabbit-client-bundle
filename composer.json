@@ -28,11 +28,11 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "bitbucket:ipedis/rabbit-client.git"
+            "url": "git@github.com:ipedis/rabbit-client.git"
         },
         {
             "type": "vcs",
-            "url": "bitbucket:ipedis/http-signature.git"
+            "url": "git@github.com:ipedis/http-signature.git"
         }
     ]
 }
