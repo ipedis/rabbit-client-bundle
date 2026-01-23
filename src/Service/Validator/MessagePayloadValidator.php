@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ipedis\Bundle\Rabbit\Service\Validator;
 
 
@@ -19,79 +21,55 @@ use Opis\JsonSchema\Validator;
 class MessagePayloadValidator implements ValidatorInterface
 {
     const DEV_ENV_SHORTCODE = 'dev';
+
     const CHANNEL_NAME_SEPARATOR = '.';
 
     /**
      * Validator library
-     *
-     * @var Validator $validator
      */
-    private Validator $validator;
+    private readonly Validator $validator;
 
     /**
      * Location of json schema files
-     *
-     * @var string $schemaBasePath
      */
-    private string $schemaBasePath;
+    private readonly string $schemaBasePath;
 
     /**
      * Disable validation on dev mode
-     *
-     * @var bool $disableOnDevMode
      */
-    private bool $disableOnDevMode;
+    private readonly bool $disableOnDevMode;
 
     /**
      * Enable or bypass validation
-     * @var bool
      */
-    private bool $enableValidation;
+    private readonly bool $enableValidation;
 
-    /**
-     * Current working environment
-     * (dev, prod, test, etc...)
-     *
-     * @var string
-     */
-    private string $currentEnv;
-    /**
-     * @var string
-     */
-    private string $queuePrefix;
-    /**
-     * @var RabbitEventLogger
-     */
-    private RabbitEventLogger $logger;
-    /**
-     * @var JsonSchemaContainer
-     */
-    private JsonSchemaContainer $schemaContainer;
+    private readonly string $queuePrefix;
 
     public function __construct(
         array $validatorConfig,
-        string $currentEnv,
+        /**
+         * Current working environment
+         * (dev, prod, test, etc...)
+         */
+        private readonly string $currentEnv,
         array $orderConfig,
-        RabbitEventLogger $logger,
-        JsonSchemaContainer $schemaContainer
+        private readonly RabbitEventLogger $logger,
+        private readonly JsonSchemaContainer $schemaContainer
     ) {
         $this->schemaBasePath = $validatorConfig['schema_base_path'];
         $this->disableOnDevMode = $validatorConfig['disable_on_dev_mode'];
         $this->enableValidation = $validatorConfig['enabled'];
-        $this->currentEnv = $currentEnv;
         $this->validator = new Validator();
         $this->queuePrefix = (empty($orderConfig['env'])) ? '' : $orderConfig['env'];
-        $this->logger = $logger;
-        $this->schemaContainer = $schemaContainer;
     }
 
     /**
      * Validate message payload with json schema
      *
-     * @param MessagePayloadInterface $messagePayload
      * @throws MessagePayloadInvalidSchemaException
      */
-    public function validate(MessagePayloadInterface $messagePayload)
+    public function validate(MessagePayloadInterface $messagePayload): void
     {
         /**
          * Disable validation of message payload if
@@ -138,8 +116,6 @@ class MessagePayloadValidator implements ValidatorInterface
     /**
      * Find and load json schema for channel
      *
-     * @param string $channel
-     * @return Schema
      * @throws MessagePayloadInvalidSchemaException
      */
     private function getJsonSchemaForChannel(string $channel): Schema
@@ -171,21 +147,12 @@ class MessagePayloadValidator implements ValidatorInterface
         return $this->validator->loader()->loadObjectSchema($this->schemaContainer->getSchema($jsonFilePath));
     }
 
-    /**
-     * @deprecated Replaced by addJsonSchema will be removed on the version 2.1
-     * @param string $channel
-     * @param array $schema
-     */
+    #[\Deprecated(message: 'Replaced by addJsonSchema will be removed on the version 2.1')]
     public function addJsonSchemaFromArray(string $channel, array $schema): void
     {
         $this->addJsonSchema($channel, json_decode(json_encode($schema), false));
     }
 
-    /**
-     * @param string $channel
-     * @param object $schema
-     * @return void
-     */
     public function addJsonSchema(string $channel, object $schema): void
     {
         $this->schemaContainer->addSchema($this->getJsonPath($channel), $schema);
@@ -193,16 +160,15 @@ class MessagePayloadValidator implements ValidatorInterface
 
     /**
      * Format channel to get json path
-     * @param string $channel
-     * @return string
      */
     private function getJsonPath(string $channel): string
     {
-        if (!empty($this->queuePrefix)) {
+        if ($this->queuePrefix !== '' && $this->queuePrefix !== '0') {
             //string to replace
             $search = ['-' . $this->queuePrefix, $this->queuePrefix . '.'];
             $channel = str_replace($search, '', $channel);
         }
+
         return str_replace(self::CHANNEL_NAME_SEPARATOR, DIRECTORY_SEPARATOR, $channel);
     }
 }

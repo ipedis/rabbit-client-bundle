@@ -9,9 +9,9 @@ use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
 use Psr\Log\NullLogger;
 
-it('should remove queue prefix', function (string $expectedPath, string $channel) {
+it('should remove queue prefix', function (string $expectedPath, string $channel): void {
     $that = $this;
-    $removePrefixAssertClosure = function () use ($that, $expectedPath, $channel) {
+    $removePrefixAssertClosure = function () use ($that, $expectedPath, $channel): void {
        expect($that->messageValidatorMock->getJsonPath($channel))->toBe($expectedPath);
     };
 
@@ -28,10 +28,10 @@ it('should remove queue prefix', function (string $expectedPath, string $channel
     ['v1/service/aggregate/something','v1.service.aggregate.something'],
 ]);
 
-it('should add data on schemaContainer', function () {
-    $this->messageValidatorMock->addJsonSchemaFromArray('v1/service/aggregate/something',['test' => 'json']);
+it('should add data on schemaContainer', function (): void {
+    $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something',(object)['test' => 'json']);
     $that = $this;
-    $checkSchemaContainerClosure = function () use ($that) {
+    $checkSchemaContainerClosure = function () use ($that): void {
         expect($that->messageValidatorMock->schemaContainer->hasSchema('v1/service/aggregate/something'))->toBeTrue();
     };
 
@@ -39,11 +39,11 @@ it('should add data on schemaContainer', function () {
     $doCheckSchemaContainerClosure();
 });
 
-it('must return Schema', function () {
-    $this->messageValidatorMock->addJsonSchemaFromArray('v1/service/aggregate/something', ['test' => 'json']);
+it('must return Schema', function (): void {
+    $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something', (object)(['test' => 'json']));
 
     $that = $this;
-    $getJsonSchemaForChannelClosure = function () use ($that) {
+    $getJsonSchemaForChannelClosure = function () use ($that): void {
         $that->assertInstanceOf(
             Schema::class,
             $that->messageValidatorMock->getJsonSchemaForChannel('dummy.v1.service.aggregate.something')
@@ -56,11 +56,21 @@ it('must return Schema', function () {
     $doGetJsonSchemaForChannelClosure();
 });
 
-it('must throw an exception when no schema provided on schema container and json path', function () {
+it('must throw an exception when no schema provided on schema container and json path', function (): void {
     $that = $this;
-    $getJsonSchemaForChannelClosure = function () use ($that) {
-        $that->expectException(MessagePayloadInvalidSchemaException::class);
-        $that->messageValidatorMock->getJsonSchemaForChannel('dummy.v1.service.aggregate.not-existing');
+    $getJsonSchemaForChannelClosure = function () use ($that): void {
+        try {
+            $that->messageValidatorMock->getJsonSchemaForChannel('dummy.v1.service.aggregate.not-existing');
+        } catch (MessagePayloadInvalidSchemaException $messagePayloadInvalidSchemaException) {
+            $that->assertInstanceOf(
+                MessagePayloadInvalidSchemaException::class,
+                $messagePayloadInvalidSchemaException
+            );
+            return;
+        }
+
+        $that->fail('Expected MessagePayloadInvalidSchemaException was not thrown.');
+
     };
 
     $doGetJsonSchemaForChannelClosure = $getJsonSchemaForChannelClosure
@@ -70,7 +80,7 @@ it('must throw an exception when no schema provided on schema container and json
 });
 
 
-it('must validate from issue from filesystem', function(string $channel, array $payload) {
+it('must validate from issue from filesystem', function(string $channel, array $payload): void {
     /** @var MessagePayloadValidator $messageValidator */
     $messageValidator = $this->messageValidator;
     $event = EventMessagePayload::build($channel, $payload);
@@ -85,7 +95,7 @@ it('must validate from issue from filesystem', function(string $channel, array $
     ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john', 'last' => 'do']],
 ]);
 
-it('must throw exception when it is not valid', function(string $channel, array $payload) {
+it('must throw exception when it is not valid', function(string $channel, array $payload): void {
     /** @var MessagePayloadValidator $messageValidator */
     $messageValidator = $this->messageValidator;
     $event = EventMessagePayload::build($channel, $payload);
@@ -99,7 +109,7 @@ it('must throw exception when it is not valid', function(string $channel, array 
     ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john']],
 ]);
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->messageValidator = new MessagePayloadValidator(
         ['schema_base_path' => 'tests/schemas', 'disable_on_dev_mode' => false, 'enabled' => true],
         'dummy',
@@ -116,7 +126,7 @@ beforeEach(function () {
     ;
 
     // add value for queuePrefix
-    $queuePrefixClosure = function () {
+    $queuePrefixClosure = function (): void {
         $this->queuePrefix = 'dummy';
         $this->schemaBasePath = 'tests/schemas';
         $this->schemaContainer = new JsonSchemaContainer();

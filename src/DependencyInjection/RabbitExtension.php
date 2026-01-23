@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\DependencyInjection;
 
@@ -13,7 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class RabbitExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
 
         $configuration = new Configuration();
@@ -28,12 +29,12 @@ class RabbitExtension extends Extension
         $container->setParameter('ipedis_rabbit.service_name', $config['service_name']);
 
 
-        $loader = new YamlFileLoader(
+        $yamlFileLoader = new YamlFileLoader(
             $container,
             new FileLocator(__DIR__.'/../../Resources/config')
         );
 
-        $loader->load('services.yaml');
+        $yamlFileLoader->load('services.yaml');
         $this->injectTaggedWorkerService($container);
     }
 
@@ -41,11 +42,12 @@ class RabbitExtension extends Extension
     {
         $definition = $container->findDefinition(WorkerContainer::class);
         $taggedWorkers = $container->findTaggedServiceIds('ipedis_rabbit.worker');
-        foreach ($taggedWorkers as $id => $tags) {
+        foreach (array_keys($taggedWorkers) as $id) {
             $definition->addMethodCall('addWorker', [new Reference($id)]);
         }
     }
 
+    #[\Override]
     public function getAlias(): string
     {
         return "ipedis_rabbit";

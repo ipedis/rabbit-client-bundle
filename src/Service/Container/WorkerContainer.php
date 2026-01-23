@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\Service\Container;
 
@@ -16,17 +17,12 @@ class WorkerContainer
         }
     }
 
-    /**
-     * @param string $name
-     * @return bool
-     */
-    public function has(string $name)
+    public function has(string $name): bool
     {
         return (!empty($this->workers[$name]));
     }
 
     /**
-     * @param string $name
      * @return mixed
      */
     public function get(string $name)

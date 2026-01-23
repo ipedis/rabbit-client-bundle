@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ipedis\Bundle\Rabbit\Service\Validator;
 
 use stdClass;
@@ -7,12 +9,7 @@ use stdClass;
 class JsonSchemaContainer
 {
     /** @var object[] */
-    protected array $schemas;
-
-    public function __construct()
-    {
-        $this->schemas = [];
-    }
+    protected array $schemas = [];
 
     public function addSchema(string $id, object $schema): void
     {

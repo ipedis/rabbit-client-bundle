@@ -10,15 +10,15 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.4.0",
-        "ipedis/rabbit-client": "^2.0",
-        "symfony/dependency-injection": "^5.0||^6.0",
-        "symfony/config": "^5.0||^6.0",
-        "symfony/console": "^5.0||^6.0",
-        "symfony/http-kernel": "^5.0||^6.0",
+        "php": ">=8.4.0",
+        "ipedis/rabbit-client": "^2.1",
+        "symfony/dependency-injection": "^8.0",
+        "symfony/config": "^8.0",
+        "symfony/console": "^7.4",
+        "symfony/http-kernel": "^8.0",
         "ext-json": "*",
-        "symfony/monolog-bundle": "^3.7",
-        "pestphp/pest": "^1.18"
+        "symfony/monolog-bundle": "^4.0",
+        "pestphp/pest": "^4.3"
     },
     "autoload": {
         "psr-4": {
@@ -34,5 +34,13 @@
             "type": "vcs",
             "url": "git@github.com:ipedis/http-signature.git"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "require-dev": {
+        "rector/rector": "^2.3"
+    }
 }

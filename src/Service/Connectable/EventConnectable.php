@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\Service\Connectable;
 
@@ -52,8 +53,6 @@ abstract class EventConnectable extends Connectable
 
     /**
      * Recovery Event store endpoint for error fallback
-     *
-     * @return string
      */
     public function getRecoveryEventStoreEndpoint(): string
     {
@@ -62,8 +61,6 @@ abstract class EventConnectable extends Connectable
 
     /**
      * Secret key used for signing request.
-     *
-     * @return string
      */
     public function getSecretKey(): string
     {
@@ -72,7 +69,6 @@ abstract class EventConnectable extends Connectable
 
     /**
      * alias of getSecretKey, must be rename according to http-signature library.
-     * @return string
      */
     public function getSignatureKey(): string
     {
@@ -81,8 +77,6 @@ abstract class EventConnectable extends Connectable
 
     /**
      * Hashing algorithm used for signing request.
-     *
-     * @return string
      */
     public function getHashingAlgorithm(): string
     {
@@ -91,8 +85,6 @@ abstract class EventConnectable extends Connectable
 
     /**
      * List of headers to include in signature.
-     *
-     * @return array
      */
     public function getHeadersList(): array
     {
