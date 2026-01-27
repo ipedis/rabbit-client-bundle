@@ -25,6 +25,13 @@ Require the library:
     }
 
 ----
+For PHP >= 8.4 and symfony >= 8
+
+    "require": {
+        "ipedis/rabbit-client-bundle": "^2.1.0"
+    }
+
+----
 
 Configuration
 ==
