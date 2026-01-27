@@ -14,7 +14,7 @@ services:
       $serviceName: "%ipedis_rabbit.service_name%"
 
   Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer:
-    arguments: [!tagged { tag: 'ipedis_rabbit.worker', index_by: 'key' }]
+    arguments: [!tagged_iterator { tag: 'ipedis_rabbit.worker', index_by: 'key' }]
 
   Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable:
     abstract: true
