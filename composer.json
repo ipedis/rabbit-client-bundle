@@ -10,15 +10,15 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=8.4.0",
-        "ipedis/rabbit-client": "^2.1",
-        "symfony/dependency-injection": "^8.0",
-        "symfony/config": "^8.0",
+        "php": ">=8.2.0",
+        "ipedis/rabbit-client": "^2.0.5",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/config": "^7.4",
         "symfony/console": "^7.4",
-        "symfony/http-kernel": "^8.0",
+        "symfony/http-kernel": "^7.4",
         "ext-json": "*",
         "symfony/monolog-bundle": "^4.0",
-        "pestphp/pest": "^4.3"
+        "pestphp/pest": "^3.8"
     },
     "autoload": {
         "psr-4": {
