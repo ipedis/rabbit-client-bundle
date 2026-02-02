@@ -7,16 +7,16 @@ namespace Ipedis\Bundle\Rabbit\Command;
 
 use Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer;
 use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'ip:worker:spawner', description: 'Spawn a worker by its name')]
 class WorkerSpawnerCommand extends Command
 {
-    protected static $defaultName = 'ip:worker:spawner';
-
     public function __construct(private readonly WorkerContainer $workerContainer, ?string $name = null)
     {
         parent::__construct($name);
