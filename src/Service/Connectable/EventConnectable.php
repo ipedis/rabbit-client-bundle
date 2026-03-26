@@ -9,34 +9,19 @@ use Ipedis\Rabbit\Channel\Factory\ChannelFactory;
 
 abstract class EventConnectable extends Connectable
 {
-    /**
-     * Recovery Event store endpoint for error fallback
-     *
-     * @var string
-     */
-    private $recoveryEventStoreEndpoint;
+    private readonly string $recoveryEventStoreEndpoint;
+
+    private readonly string $secretKey;
+
+    private readonly string $hashingAlgorithm;
+
+    /** @var array<int, string> */
+    private readonly array $headersList;
 
     /**
-     * Secret key used for signing request
-     *
-     * @var string
+     * @param array<string, mixed> $connectionConfig
+     * @param array<string, mixed> $exchangeConfig
      */
-    private $secretKey;
-
-    /**
-     * Hashing algorithm used for signing request
-     *
-     * @var string
-     */
-    private $hashingAlgorithm;
-
-    /**
-     * List of headers to include in signature.
-     *
-     * @var array
-     */
-    private $headersList;
-
     public function __construct(
         array $connectionConfig,
         array $exchangeConfig,
@@ -45,10 +30,14 @@ abstract class EventConnectable extends Connectable
     ) {
         parent::__construct($connectionConfig, $exchangeConfig, $channelFactory, $messagePayloadValidator);
 
-        $this->recoveryEventStoreEndpoint = $exchangeConfig['recovery_endpoint'];
-        $this->secretKey = $exchangeConfig['http_signature']['secret_key'];
-        $this->hashingAlgorithm = $exchangeConfig['http_signature']['algorithm'];
-        $this->headersList = $exchangeConfig['http_signature']['headers'];
+        /** @var string $recoveryEndpoint */
+        $recoveryEndpoint = $exchangeConfig['recovery_endpoint'];
+        $this->recoveryEventStoreEndpoint = $recoveryEndpoint;
+        /** @var array{secret_key: string, algorithm: string, headers: array<int, string>} $httpSignature */
+        $httpSignature = $exchangeConfig['http_signature'];
+        $this->secretKey = $httpSignature['secret_key'];
+        $this->hashingAlgorithm = $httpSignature['algorithm'];
+        $this->headersList = $httpSignature['headers'];
     }
 
     /**
@@ -85,6 +74,8 @@ abstract class EventConnectable extends Connectable
 
     /**
      * List of headers to include in signature.
+     *
+     * @return array<int, string>
      */
     public function getHeadersList(): array
     {

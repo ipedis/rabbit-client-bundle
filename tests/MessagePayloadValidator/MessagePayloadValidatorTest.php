@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Ipedis\Bundle\Rabbit\Tests\MessagePayloadValidator;
+
 use Ipedis\Bundle\Rabbit\Service\Logger\RabbitEventLogger;
 use Ipedis\Bundle\Rabbit\Service\Validator\JsonSchemaContainer;
 use Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator;
@@ -7,132 +11,162 @@ use Ipedis\Rabbit\Exception\MessagePayload\MessagePayloadInvalidSchemaException;
 use Ipedis\Rabbit\MessagePayload\EventMessagePayload;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use ReflectionMethod;
+use ReflectionProperty;
 
-it('should remove queue prefix', function (string $expectedPath, string $channel): void {
-    $that = $this;
-    $removePrefixAssertClosure = function () use ($that, $expectedPath, $channel): void {
-       expect($that->messageValidatorMock->getJsonPath($channel))->toBe($expectedPath);
-    };
+final class MessagePayloadValidatorTest extends TestCase
+{
+    private MessagePayloadValidator $messageValidator;
 
-    $doRemovePrefixAssert = $removePrefixAssertClosure->bindTo(
-        $this->messageValidatorMock,
-        MessagePayloadValidator::class
-    );
+    private MessagePayloadValidator $messageValidatorMock;
 
-    $doRemovePrefixAssert();
-})->with([
-    ['v1/service/aggregate/something','dummy.v1.service.aggregate.something'],
-    ['v1/service/aggregate/something','dummy.v1-dummy.service.aggregate.something'],
-    ['v1/service/aggregate/something','v1-dummy.service.aggregate.something'],
-    ['v1/service/aggregate/something','v1.service.aggregate.something'],
-]);
-
-it('should add data on schemaContainer', function (): void {
-    $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something',(object)['test' => 'json']);
-    $that = $this;
-    $checkSchemaContainerClosure = function () use ($that): void {
-        expect($that->messageValidatorMock->schemaContainer->hasSchema('v1/service/aggregate/something'))->toBeTrue();
-    };
-
-    $doCheckSchemaContainerClosure = $checkSchemaContainerClosure->bindTo($this->messageValidatorMock, MessagePayloadValidator::class);
-    $doCheckSchemaContainerClosure();
-});
-
-it('must return Schema', function (): void {
-    $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something', (object)(['test' => 'json']));
-
-    $that = $this;
-    $getJsonSchemaForChannelClosure = function () use ($that): void {
-        $that->assertInstanceOf(
-            Schema::class,
-            $that->messageValidatorMock->getJsonSchemaForChannel('dummy.v1.service.aggregate.something')
+    protected function setUp(): void
+    {
+        $this->messageValidator = new MessagePayloadValidator(
+            ['schema_base_path' => 'tests/schemas', 'disable_on_dev_mode' => false, 'enabled' => true],
+            'dummy',
+            ['env' => 'dummy'],
+            new RabbitEventLogger(new NullLogger()),
+            new JsonSchemaContainer()
         );
-    };
 
-    $doGetJsonSchemaForChannelClosure = $getJsonSchemaForChannelClosure
-        ->bindTo($this->messageValidatorMock, MessagePayloadValidator::class);
+        $this->messageValidatorMock = $this
+            ->getMockBuilder(MessagePayloadValidator::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
 
-    $doGetJsonSchemaForChannelClosure();
-});
+        $this->setPrivateProperty($this->messageValidatorMock, 'queuePrefix', 'dummy');
+        $this->setPrivateProperty($this->messageValidatorMock, 'schemaBasePath', 'tests/schemas');
+        $this->setPrivateProperty($this->messageValidatorMock, 'schemaContainer', new JsonSchemaContainer());
+        $this->setPrivateProperty($this->messageValidatorMock, 'validator', new Validator());
+    }
 
-it('must throw an exception when no schema provided on schema container and json path', function (): void {
-    $that = $this;
-    $getJsonSchemaForChannelClosure = function () use ($that): void {
-        try {
-            $that->messageValidatorMock->getJsonSchemaForChannel('dummy.v1.service.aggregate.not-existing');
-        } catch (MessagePayloadInvalidSchemaException $messagePayloadInvalidSchemaException) {
-            $that->assertInstanceOf(
-                MessagePayloadInvalidSchemaException::class,
-                $messagePayloadInvalidSchemaException
-            );
-            return;
-        }
+    #[DataProvider('queuePrefixProvider')]
+    #[Test]
+    public function should_remove_queue_prefix(string $expectedPath, string $channel): void
+    {
+        $result = $this->callPrivateMethod($this->messageValidatorMock, 'getJsonPath', [$channel]);
+        $this->assertSame($expectedPath, $result);
+    }
 
-        $that->fail('Expected MessagePayloadInvalidSchemaException was not thrown.');
+    /**
+     * @return \Iterator<string, array{string, string}>
+     */
+    public static function queuePrefixProvider(): \Iterator
+    {
+        yield 'simple prefix' => ['v1/service/aggregate/something', 'dummy.v1.service.aggregate.something'];
+        yield 'double prefix' => ['v1/service/aggregate/something', 'dummy.v1-dummy.service.aggregate.something'];
+        yield 'prefix with dash' => ['v1/service/aggregate/something', 'v1-dummy.service.aggregate.something'];
+        yield 'no prefix' => ['v1/service/aggregate/something', 'v1.service.aggregate.something'];
+    }
 
-    };
+    #[Test]
+    public function should_add_data_on_schema_container(): void
+    {
+        $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something', (object) ['test' => 'json']);
 
-    $doGetJsonSchemaForChannelClosure = $getJsonSchemaForChannelClosure
-        ->bindTo($this->messageValidatorMock, MessagePayloadValidator::class);
+        $schemaContainer = $this->getPrivateProperty($this->messageValidatorMock, 'schemaContainer');
+        $this->assertInstanceOf(JsonSchemaContainer::class, $schemaContainer);
+        $this->assertTrue($schemaContainer->hasSchema('v1/service/aggregate/something'));
+    }
 
-    $doGetJsonSchemaForChannelClosure();
-});
+    #[Test]
+    public function must_return_schema(): void
+    {
+        $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something', (object) ['test' => 'json']);
 
+        $result = $this->callPrivateMethod(
+            $this->messageValidatorMock,
+            'getJsonSchemaForChannel',
+            ['dummy.v1.service.aggregate.something']
+        );
+        $this->assertInstanceOf(Schema::class, $result);
+    }
 
-it('must validate from issue from filesystem', function(string $channel, array $payload): void {
-    /** @var MessagePayloadValidator $messageValidator */
-    $messageValidator = $this->messageValidator;
-    $event = EventMessagePayload::build($channel, $payload);
-    expect($messageValidator->validate($event))
-        ->not()
-        ->toThrow(MessagePayloadInvalidSchemaException::class)
-    ;
-})->with([
-    ['dummy.v1.service.aggregate.something', ['hasToFail' => true, 'name' => 'foo']],
-    ['v1.service.aggregate.another', ['first' => 'john', 'last' => 'do']],
-    ['v1.service.aggregate.something', ['hasToFail' => true, 'name' => 'foo']],
-    ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john', 'last' => 'do']],
-]);
+    #[Test]
+    public function must_throw_exception_when_no_schema_provided(): void
+    {
+        $this->expectException(MessagePayloadInvalidSchemaException::class);
 
-it('must throw exception when it is not valid', function(string $channel, array $payload): void {
-    /** @var MessagePayloadValidator $messageValidator */
-    $messageValidator = $this->messageValidator;
-    $event = EventMessagePayload::build($channel, $payload);
-    $messageValidator->validate($event);
-})
-->throws(MessagePayloadInvalidSchemaException::class)
-->with([
-    ['dummy.v1.service.aggregate.something', ['hasToFail' => 'true', 'name' => 'foo']],
-    ['v1.service.aggregate.another', ['first' => 'john', 'last' => null]],
-    ['v1.service.aggregate.something', ['extra' => '', 'hasToFail' => true, 'name' => 'foo']],
-    ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john']],
-]);
+        $this->callPrivateMethod(
+            $this->messageValidatorMock,
+            'getJsonSchemaForChannel',
+            ['dummy.v1.service.aggregate.not-existing']
+        );
+    }
 
-beforeEach(function (): void {
-    $this->messageValidator = new MessagePayloadValidator(
-        ['schema_base_path' => 'tests/schemas', 'disable_on_dev_mode' => false, 'enabled' => true],
-        'dummy',
-        ['env' => 'dummy'],
-        new RabbitEventLogger(new NullLogger()),
-        new JsonSchemaContainer()
-    );
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('validPayloadProvider')]
+    #[Test]
+    public function must_validate_from_filesystem(string $channel, array $payload): void
+    {
+        $event = EventMessagePayload::build($channel, $payload);
+        $this->messageValidator->validate($event);
+        $this->addToAssertionCount(1);
+    }
 
-    $this->messageValidatorMock = $this
-        ->getMockBuilder(MessagePayloadValidator::class)
-        ->disableOriginalConstructor()
-        ->onlyMethods([])
-        ->getMock()
-    ;
+    /**
+     * @return \Iterator<string, array{string, array<string, mixed>}>
+     */
+    public static function validPayloadProvider(): \Iterator
+    {
+        yield 'with prefix' => ['dummy.v1.service.aggregate.something', ['hasToFail' => true, 'name' => 'foo']];
+        yield 'without prefix' => ['v1.service.aggregate.another', ['first' => 'john', 'last' => 'do']];
+        yield 'no prefix something' => ['v1.service.aggregate.something', ['hasToFail' => true, 'name' => 'foo']];
+        yield 'double prefix another' => ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john', 'last' => 'do']];
+    }
 
-    // add value for queuePrefix
-    $queuePrefixClosure = function (): void {
-        $this->queuePrefix = 'dummy';
-        $this->schemaBasePath = 'tests/schemas';
-        $this->schemaContainer = new JsonSchemaContainer();
-        $this->validator = new Validator();
-    };
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('invalidPayloadProvider')]
+    #[Test]
+    public function must_throw_exception_when_not_valid(string $channel, array $payload): void
+    {
+        $this->expectException(MessagePayloadInvalidSchemaException::class);
 
-    $queuePrefixClosure = $queuePrefixClosure->bindTo($this->messageValidatorMock, MessagePayloadValidator::class);
-    $queuePrefixClosure();
-});
+        $event = EventMessagePayload::build($channel, $payload);
+        $this->messageValidator->validate($event);
+    }
+
+    /**
+     * @return \Iterator<string, array{string, array<string, mixed>}>
+     */
+    public static function invalidPayloadProvider(): \Iterator
+    {
+        yield 'string instead of bool' => ['dummy.v1.service.aggregate.something', ['hasToFail' => 'true', 'name' => 'foo']];
+        yield 'null instead of string' => ['v1.service.aggregate.another', ['first' => 'john', 'last' => null]];
+        yield 'extra property' => ['v1.service.aggregate.something', ['extra' => '', 'hasToFail' => true, 'name' => 'foo']];
+        yield 'missing property' => ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john']];
+    }
+
+    private function setPrivateProperty(object $object, string $property, mixed $value): void
+    {
+        $reflectionProperty = new ReflectionProperty(MessagePayloadValidator::class, $property);
+        $reflectionProperty->setValue($object, $value);
+    }
+
+    private function getPrivateProperty(object $object, string $property): mixed
+    {
+        $reflectionProperty = new ReflectionProperty(MessagePayloadValidator::class, $property);
+
+        return $reflectionProperty->getValue($object);
+    }
+
+    /**
+     * @param array<int, mixed> $args
+     */
+    private function callPrivateMethod(object $object, string $method, array $args = []): mixed
+    {
+        $reflectionMethod = new ReflectionMethod(MessagePayloadValidator::class, $method);
+
+        return $reflectionMethod->invoke($object, ...$args);
+    }
+}

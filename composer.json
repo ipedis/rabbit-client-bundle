@@ -11,36 +11,44 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=8.2.0",
+        "ext-json": "*",
         "ipedis/rabbit-client": "^2.0.5",
         "symfony/dependency-injection": "^7.4",
         "symfony/config": "^7.4",
         "symfony/console": "^7.4",
         "symfony/http-kernel": "^7.4",
-        "ext-json": "*",
-        "symfony/monolog-bundle": "^4.0",
-        "pestphp/pest": "^3.8"
+        "symfony/monolog-bundle": "^4.0"
     },
     "autoload": {
         "psr-4": {
             "Ipedis\\Bundle\\Rabbit\\": "src/"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:ipedis/rabbit-client.git"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ipedis/http-signature.git"
-        }
-    ],
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
+    "autoload-dev": {
+        "psr-4": {
+            "Ipedis\\Bundle\\Rabbit\\Tests\\": "tests/"
         }
     },
     "require-dev": {
-        "rector/rector": "^2.3"
+        "rector/rector": "^2.3",
+        "phpunit/phpunit": "^11.5",
+        "phpstan/phpstan": "^2.1",
+        "laravel/pint": "^1.19",
+        "phpstan/phpstan-strict-rules": "^2.0"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-html coverage",
+        "phpstan": "phpstan analyse --memory-limit 2024M",
+        "pint": "pint",
+        "pint:check": "pint --test",
+        "rector": "rector process",
+        "rector:check": "rector process --dry-run",
+        "qa": [
+            "@rector",
+            "@pint",
+            "@phpstan",
+            "@test"
+        ]
     }
 }

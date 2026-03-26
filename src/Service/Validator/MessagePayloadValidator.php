@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\Service\Validator;
 
-
 use Ipedis\Bundle\Rabbit\Service\Logger\RabbitEventLogger;
 use Ipedis\Rabbit\Exception\MessagePayload\MessagePayloadInvalidSchemaException;
 use Ipedis\Rabbit\MessagePayload\MessagePayloadInterface;
 use Ipedis\Rabbit\MessagePayload\Validator\ValidatorInterface;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
+
 /**
  * Default Validator for validating rabbitMQ message payload
  * against predefined json schema
@@ -20,9 +20,9 @@ use Opis\JsonSchema\Validator;
  */
 class MessagePayloadValidator implements ValidatorInterface
 {
-    const DEV_ENV_SHORTCODE = 'dev';
+    public const DEV_ENV_SHORTCODE = 'dev';
 
-    const CHANNEL_NAME_SEPARATOR = '.';
+    public const CHANNEL_NAME_SEPARATOR = '.';
 
     /**
      * Validator library
@@ -46,6 +46,10 @@ class MessagePayloadValidator implements ValidatorInterface
 
     private readonly string $queuePrefix;
 
+    /**
+     * @param array{schema_base_path: string, disable_on_dev_mode: bool, enabled: bool} $validatorConfig
+     * @param array{env?: string} $orderConfig
+     */
     public function __construct(
         array $validatorConfig,
         /**
@@ -102,9 +106,9 @@ class MessagePayloadValidator implements ValidatorInterface
                     $messagePayload->getChannel()
                 ),
                 [
-                    'error'     => $error->message(),
-                    'keyword'   => $error->keyword(),
-                    'args'      => $error->args(),
+                    'error' => $error->message(),
+                    'keyword' => $error->keyword(),
+                    'args' => $error->args(),
                 ]
             );
             throw new MessagePayloadInvalidSchemaException(
@@ -138,19 +142,43 @@ class MessagePayloadValidator implements ValidatorInterface
             }
 
             /** get content of schema.json */
-            $jsonSchema = json_decode(file_get_contents($jsonFileAbsolutePath), false);
+            $fileContent = file_get_contents($jsonFileAbsolutePath);
+            if ($fileContent === false) {
+                throw new MessagePayloadInvalidSchemaException(sprintf('Unable to read schema file for channel {%s}', $channel));
+            }
 
-            /** add content of schema.json on schemaContainer */
+            $jsonSchema = json_decode($fileContent, false);
+            if (!is_object($jsonSchema)) {
+                throw new MessagePayloadInvalidSchemaException(sprintf('Invalid JSON schema for channel {%s}', $channel));
+            }
+
             $this->schemaContainer->addSchema($jsonFilePath, $jsonSchema);
         }
 
         return $this->validator->loader()->loadObjectSchema($this->schemaContainer->getSchema($jsonFilePath));
     }
 
+    /**
+     * @param array<string, mixed> $schema
+     */
     #[\Deprecated(message: 'Replaced by addJsonSchema will be removed on the version 2.1')]
     public function addJsonSchemaFromArray(string $channel, array $schema): void
     {
-        $this->addJsonSchema($channel, json_decode(json_encode($schema), false));
+        $json = json_encode($schema);
+        if ($json === false) {
+            throw new MessagePayloadInvalidSchemaException(
+                sprintf('Unable to encode schema array for channel {%s}', $channel)
+            );
+        }
+
+        $decoded = json_decode($json, false);
+        if (!is_object($decoded)) {
+            throw new MessagePayloadInvalidSchemaException(
+                sprintf('Decoded JSON schema is not an object for channel {%s}', $channel)
+            );
+        }
+
+        $this->addJsonSchema($channel, $decoded);
     }
 
     public function addJsonSchema(string $channel, object $schema): void

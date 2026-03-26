@@ -25,6 +25,6 @@ class JsonSchemaContainer
 
     public function hasSchema(string $id): bool
     {
-        return isset($this->schemas[$id]) && !empty($this->schemas[$id]);
+        return isset($this->schemas[$id]);
     }
 }

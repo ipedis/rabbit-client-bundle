@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\Service\Connectable;
 
-
 use Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator;
 use Ipedis\Rabbit\Channel\Factory\ChannelFactory;
 use Ipedis\Rabbit\Connector;
@@ -13,7 +12,7 @@ abstract class Connectable
 {
     use Connector;
 
-    private string$host;
+    private string $host;
 
     private int $port;
 
@@ -25,20 +24,38 @@ abstract class Connectable
 
     private string $exchangeName;
 
+    /** @var array<string, mixed> */
     protected array $exchangeConfig;
 
+    /**
+     * @param array<string, mixed> $connectionConfig
+     * @param array<string, mixed> $exchangeConfig
+     */
     public function __construct(
         array $connectionConfig,
         array $exchangeConfig,
         private ChannelFactory $channelFactory,
         private MessagePayloadValidator $messagePayloadValidator
     ) {
-        $this->host = $connectionConfig['host'];
-        $this->port = $connectionConfig['port'];
-        $this->user = $connectionConfig['user'];
-        $this->password = $connectionConfig['password'];
-        $this->exchangeName = $exchangeConfig['exchange'];
-        $this->type = $exchangeConfig['type'];
+        /** @var string $host */
+        $host = $connectionConfig['host'];
+        $this->host = $host;
+        /** @var int $port */
+        $port = $connectionConfig['port'];
+        $this->port = $port;
+        /** @var string $user */
+        $user = $connectionConfig['user'];
+        $this->user = $user;
+        /** @var string $password */
+        $password = $connectionConfig['password'];
+        $this->password = $password;
+        /** @var string $exchange */
+        $exchange = $exchangeConfig['exchange'];
+        $this->exchangeName = $exchange;
+        /** @var string $type */
+        $type = $exchangeConfig['type'];
+        $this->type = $type;
+
         $this->exchangeConfig = $exchangeConfig;
     }
 
