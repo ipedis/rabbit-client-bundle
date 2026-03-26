@@ -33,7 +33,7 @@ class RabbitEventLogger
      */
     public function writeDebug(string $message, array $context = []): void
     {
-        $this->logger->info($message, $context);
+        $this->logger->debug($message, $context);
     }
 
     /**

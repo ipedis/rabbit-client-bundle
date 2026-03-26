@@ -10,9 +10,9 @@ class WorkerContainer
     protected array $workers = [];
 
     /**
-     * @param array<string, mixed> $workers
+     * @param iterable<string, mixed> $workers
      */
-    public function __construct(array $workers)
+    public function __construct(iterable $workers)
     {
         foreach ($workers as $id => $worker) {
             $this->workers[$id] = $worker;

@@ -147,10 +147,11 @@ class MessagePayloadValidator implements ValidatorInterface
                 throw new MessagePayloadInvalidSchemaException(sprintf('Unable to read schema file for channel {%s}', $channel));
             }
 
-            /** @var object $jsonSchema */
             $jsonSchema = json_decode($fileContent, false);
+            if (!is_object($jsonSchema)) {
+                throw new MessagePayloadInvalidSchemaException(sprintf('Invalid JSON schema for channel {%s}', $channel));
+            }
 
-            /** add content of schema.json on schemaContainer */
             $this->schemaContainer->addSchema($jsonFilePath, $jsonSchema);
         }
 
@@ -163,8 +164,20 @@ class MessagePayloadValidator implements ValidatorInterface
     #[\Deprecated(message: 'Replaced by addJsonSchema will be removed on the version 2.1')]
     public function addJsonSchemaFromArray(string $channel, array $schema): void
     {
-        /** @var object $decoded */
-        $decoded = json_decode((string) json_encode($schema), false);
+        $json = json_encode($schema);
+        if ($json === false) {
+            throw new MessagePayloadInvalidSchemaException(
+                sprintf('Unable to encode schema array for channel {%s}', $channel)
+            );
+        }
+
+        $decoded = json_decode($json, false);
+        if (!is_object($decoded)) {
+            throw new MessagePayloadInvalidSchemaException(
+                sprintf('Decoded JSON schema is not an object for channel {%s}', $channel)
+            );
+        }
+
         $this->addJsonSchema($channel, $decoded);
     }
 

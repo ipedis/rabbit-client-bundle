@@ -7,6 +7,7 @@ use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\Class_\RenamePropertyToMatchTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
+use Rector\TypeDeclaration\Rector\Class_\TypedPropertyFromCreateMockAssignRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Symfony\CodeQuality\Rector\Class_\ControllerMethodInjectionToConstructorRector;
 
@@ -34,7 +35,7 @@ return RectorConfig::configure()
         symfonyConfigs: true,
     )
     ->withSets(sets: [
-        PHPUnitSetList::PHPUNIT_120,
+        PHPUnitSetList::PHPUNIT_110,
     ])
     ->withComposerBased(symfony: true)
     ->withSkip([
@@ -43,4 +44,5 @@ return RectorConfig::configure()
         RenameVariableToMatchMethodCallReturnTypeRector::class,
         SetCookieRector::class,
         ControllerMethodInjectionToConstructorRector::class,
+        TypedPropertyFromCreateMockAssignRector::class,
     ]);

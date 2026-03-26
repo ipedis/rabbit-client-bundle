@@ -34,17 +34,11 @@
         "phpunit/phpunit": "^11.5",
         "phpstan/phpstan": "^2.1",
         "laravel/pint": "^1.19",
-        "phpstan/phpstan-strict-rules": "^2.0",
-        "pestphp/pest": "^3.8"
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+        "phpstan/phpstan-strict-rules": "^2.0"
     },
     "scripts": {
-        "test": "pest tests",
-        "test:coverage": "pest tests --coverage-html coverage",
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-html coverage",
         "phpstan": "phpstan analyse --memory-limit 2024M",
         "pint": "pint",
         "pint:check": "pint --test",

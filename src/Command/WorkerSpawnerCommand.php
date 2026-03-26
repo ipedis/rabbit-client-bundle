@@ -35,14 +35,14 @@ class WorkerSpawnerCommand extends Command
 
         if (! $this->workerContainer->has($workerName)) {
             $symfonyStyle->error(sprintf('No service tagged with this name : "%s"', $workerName));
-            return -1;
+            return self::FAILURE;
         }
 
         $worker = $this->workerContainer->get($workerName);
 
         if (!($worker instanceof ProcessInterface)) {
             $symfonyStyle->error(sprintf('Registred service "%s" does not implement "ProcessInterface"', $workerName));
-            return -1;
+            return self::FAILURE;
         }
 
         $symfonyStyle->success(sprintf('Worker "%s" is up and ready to start processing.', $workerName));

@@ -74,8 +74,7 @@ abstract class EventConnectable extends Connectable
 
     /**
      * List of headers to include in signature.
-     */
-    /**
+     *
      * @return array<int, string>
      */
     public function getHeadersList(): array
