@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\Command;
 
-
 use Ipedis\Bundle\Rabbit\Service\Container\WorkerContainer;
 use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,7 +21,7 @@ class WorkerSpawnerCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'name of the worker to spawn');
     }
@@ -31,20 +30,22 @@ class WorkerSpawnerCommand extends Command
     {
         $symfonyStyle = new SymfonyStyle($input, $output);
 
-        if( ! $this->workerContainer->has($input->getArgument('name')) ) {
-            $symfonyStyle->error(sprintf('No service tagged with this name : "%s"', $input->getArgument('name')));
+        /** @var string $workerName */
+        $workerName = $input->getArgument('name');
+
+        if (! $this->workerContainer->has($workerName)) {
+            $symfonyStyle->error(sprintf('No service tagged with this name : "%s"', $workerName));
             return -1;
         }
 
-        /** @var ProcessInterface $worker */
-        $worker = $this->workerContainer->get($input->getArgument('name'));
+        $worker = $this->workerContainer->get($workerName);
 
         if (!($worker instanceof ProcessInterface)) {
-            $symfonyStyle->error(sprintf('Registred service "%s" does not implement "ProcessInterface"', $input->getArgument('name')));
+            $symfonyStyle->error(sprintf('Registred service "%s" does not implement "ProcessInterface"', $workerName));
             return -1;
         }
 
-        $symfonyStyle->success(sprintf('Worker "%s" is up and ready to start processing.', $input->getArgument('name')));
+        $symfonyStyle->success(sprintf('Worker "%s" is up and ready to start processing.', $workerName));
 
         $worker
             ->execute();

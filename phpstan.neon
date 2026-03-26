@@ -1,0 +1,28 @@
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    tmpDir: .phpstan
+    ignoreErrors:
+        -
+            identifier: property.notFound
+            path: tests/*
+        -
+            identifier: method.protected
+            path: tests/*
+        -
+            identifier: method.void
+            path: tests/*
+        -
+            identifier: argument.type
+            path: tests/*
+        -
+            identifier: method.private
+            path: tests/*
+        -
+            identifier: method.nonObject
+            path: tests/*
+        -
+            identifier: property.nonObject
+            path: tests/*

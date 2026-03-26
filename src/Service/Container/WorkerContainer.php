@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Ipedis\Bundle\Rabbit\Service\Container;
 
-
 class WorkerContainer
 {
-    protected $workers = [];
+    /** @var array<string, mixed> */
+    protected array $workers = [];
 
-    public function __construct($workers)
+    /**
+     * @param array<string, mixed> $workers
+     */
+    public function __construct(array $workers)
     {
-        foreach ($workers as $id => $worker)
-        {
+        foreach ($workers as $id => $worker) {
             $this->workers[$id] = $worker;
         }
     }
@@ -22,10 +24,7 @@ class WorkerContainer
         return (!empty($this->workers[$name]));
     }
 
-    /**
-     * @return mixed
-     */
-    public function get(string $name)
+    public function get(string $name): mixed
     {
         return $this->workers[$name];
     }

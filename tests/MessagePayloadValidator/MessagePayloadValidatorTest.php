@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Ipedis\Bundle\Rabbit\Service\Logger\RabbitEventLogger;
 use Ipedis\Bundle\Rabbit\Service\Validator\JsonSchemaContainer;
 use Ipedis\Bundle\Rabbit\Service\Validator\MessagePayloadValidator;
@@ -10,13 +12,15 @@ use Opis\JsonSchema\Validator;
 use Psr\Log\NullLogger;
 
 it('should remove queue prefix', function (string $expectedPath, string $channel): void {
-    $that = $this;
-    $removePrefixAssertClosure = function () use ($that, $expectedPath, $channel): void {
-       expect($that->messageValidatorMock->getJsonPath($channel))->toBe($expectedPath);
+    /** @var MessagePayloadValidator $mock */
+    $mock = $this->messageValidatorMock;
+    $removePrefixAssertClosure = function () use ($mock, $expectedPath, $channel): void {
+        expect($mock->getJsonPath($channel))->toBe($expectedPath);
     };
 
+    /** @var Closure $doRemovePrefixAssert */
     $doRemovePrefixAssert = $removePrefixAssertClosure->bindTo(
-        $this->messageValidatorMock,
+        $mock,
         MessagePayloadValidator::class
     );
 
@@ -29,7 +33,7 @@ it('should remove queue prefix', function (string $expectedPath, string $channel
 ]);
 
 it('should add data on schemaContainer', function (): void {
-    $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something',(object)['test' => 'json']);
+    $this->messageValidatorMock->addJsonSchema('v1/service/aggregate/something', (object)['test' => 'json']);
     $that = $this;
     $checkSchemaContainerClosure = function () use ($that): void {
         expect($that->messageValidatorMock->schemaContainer->hasSchema('v1/service/aggregate/something'))->toBeTrue();
@@ -80,7 +84,7 @@ it('must throw an exception when no schema provided on schema container and json
 });
 
 
-it('must validate from issue from filesystem', function(string $channel, array $payload): void {
+it('must validate from issue from filesystem', function (string $channel, array $payload): void {
     /** @var MessagePayloadValidator $messageValidator */
     $messageValidator = $this->messageValidator;
     $event = EventMessagePayload::build($channel, $payload);
@@ -95,7 +99,7 @@ it('must validate from issue from filesystem', function(string $channel, array $
     ['dummy.v1-dummy.service.aggregate.another', ['first' => 'john', 'last' => 'do']],
 ]);
 
-it('must throw exception when it is not valid', function(string $channel, array $payload): void {
+it('must throw exception when it is not valid', function (string $channel, array $payload): void {
     /** @var MessagePayloadValidator $messageValidator */
     $messageValidator = $this->messageValidator;
     $event = EventMessagePayload::build($channel, $payload);
