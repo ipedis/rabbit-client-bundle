@@ -2,6 +2,7 @@
     "name": "ipedis/rabbit-client-bundle",
     "description": "Symfony bundle for rabbit client",
     "type": "library",
+    "license": "CC-BY-1.0",
     "authors": [
         {
             "name": "yanis",
