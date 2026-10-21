@@ -6,6 +6,7 @@ namespace Ipedis\Bundle\Rabbit\Service\Connectable;
 
 abstract class OrderConnectable extends Connectable
 {
+    #[\Override]
     public function getQueuePrefix(): string
     {
         /** @var string $env */
