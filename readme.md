@@ -1,257 +1,210 @@
-RabbitMQ - Publispeak client symfony Bundle
---
+# Rabbit Client Bundle
 
-Installation
-==
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/ipedis/rabbit-client-bundle.svg)](https://packagist.org/packages/ipedis/rabbit-client-bundle)
+[![License](https://img.shields.io/packagist/l/ipedis/rabbit-client-bundle.svg)](https://packagist.org/packages/ipedis/rabbit-client-bundle)
 
-Update `composer.json` and add a repository:
+Symfony integration of [`ipedis/rabbit-client`](https://github.com/ipedis/rabbit-client): RabbitMQ events, orders and workflows, configured from `ipedis_rabbit` and run with one console command.
 
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "bitbucket:ipedis/rabbit-client.git"
-        },
-        {
-            "type": "vcs",
-            "url": "bitbucket:ipedis/rabbit-client-bundle.git"
-        }
-    ]
-    
-    
-Require the library:
+The bundle provides:
 
-    "require": {
-        "ipedis/rabbit-client-bundle": "^1.0.0"
-    }
+- an event dispatcher, an order manager and a workflow manager, ready to inject;
+- abstract parent services (`EventConnectable`, `OrderConnectable`) that give your listeners and workers the connection settings;
+- `ip:worker:spawner <name>`, which starts any listener or worker you tagged;
+- validation of every payload against a JSON schema per channel.
 
-----
-For PHP >= 8.2 and symfony >= 7.4 
+## Installation
 
-    "require": {
-        "ipedis/rabbit-client-bundle": "2.0.7"
-    }
+```bash
+composer require ipedis/rabbit-client-bundle
+```
 
-----
-For PHP >= 8.4 and symfony >= 8
+Requires PHP 8.3+, Symfony 7.4 and the `amqp` PHP extension (2.0.7: PHP 8.2+ and Symfony 7.4; 2.1.0 and 2.1.1: PHP 8.4 and Symfony 8). Register the bundle in `config/bundles.php` (Symfony Flex does it for you):
 
-    "require": {
-        "ipedis/rabbit-client-bundle": "^2.1.1"
-    }
+```php
+Ipedis\Bundle\Rabbit\RabbitBundle::class => ['all' => true],
+```
 
-----
+## Configuration
 
-Configuration
-==
+`config/packages/ipedis_rabbit.yaml`. Only `service_name` is required; the other values are the defaults.
 
-on `config/packages` folder, create yaml configuration like following:
+```yaml
+ipedis_rabbit:
+  protocol_version: "v1"
+  service_name: "admin"          # your service, the second part of the channel names
 
-    ipedis_rabbit:
-      protocol_version: "v1"
-      service_name: "admin"
-      
-      connection:
-        host: "localhost"
-        port: 5672
-        user: "guest"
-        password: "guest"
-    
-      order:
-        exchange: "publispeak_orders"
-        type: "topic"
-    
-      event:
-        exchange: "publispeak_events"
-        type: "topic"
+  connection:
+    host: "localhost"
+    port: 5672
+    user: "guest"
+    password: "guest"
 
-*all configurations have default value so there are all optional*
+  order:
+    exchange: "publispeak_orders"
+    type: "topic"
+    env: "dev"                   # prefix of the order queues: several environments can share one RabbitMQ
 
----
+  event:
+    exchange: "publispeak_events"
+    type: "topic"
 
-on `config/bundles.php` add `RabbitBundle` as bellow:
+  validation:
+    enabled: true
+    disable_on_dev_mode: false   # skip validation when kernel.environment is "dev"
+    schema_base_path: "%kernel.project_dir%/vendor/ipedis/rabbit-client-bundle/Resources/schema"
+```
 
-    Ipedis\Bundle\Rabbit\RabbitBundle::class => ['all' => true]
+Use environment variables for the connection in production, e.g. `password: '%env(RABBITMQ_PASSWORD)%'`.
 
----
+## Dispatch an event
 
-Get Started: Publish and Subscribe.
-==
+Inject `Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher`:
 
-**Create event listener worker**
+```php
+use Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher;
+use Ipedis\Rabbit\MessagePayload\EventMessagePayload;
 
-Create service like following: 
+public function __construct(private EventDispatcher $dispatcher) {}
 
-    use Closure;
-    use Ipedis\Bundle\Rabbit\Service\Connectable\Connectable;
-    use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
-    use Ipedis\Rabbit\Event\EventListener;
-    use PhpAmqpLib\Message\AMQPMessage;
-    
-    class Binding extends Connectable implements ProcessInterface
+public function onExport(int $sid): void
+{
+    $this->dispatcher->dispatch(EventMessagePayload::build('v1.admin.publication.was-exported', [
+        'publication' => ['sid' => $sid],
+    ]));
+}
+```
+
+It uses the `connection` and `event` settings. When RabbitMQ is unreachable, `dispatch()` throws (`RabbitClientConnectException`, `RabbitClientPublishException`): dispatching from a Symfony Messenger handler gives you retries for free.
+
+## Listen to events
+
+```php
+use Closure;
+use Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable;
+use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
+use Ipedis\Rabbit\Event\EventListener;
+use Ipedis\Rabbit\MessagePayload\EventMessagePayload;
+
+class PublicationListener extends EventConnectable implements ProcessInterface
+{
+    use EventListener;
+
+    protected function getBindingKey(): array
     {
-        use EventListener;
-        
-        protected function getProcessing(): Closure
-        {
-            return function (AMQPMessage $message) {
-                $data = json_decode($message->getBody(), true);
-                // [...]
-            };
-        }
-    
-        protected function getBindingKey(): string
-        {
-            return 'publication.*';
-        }
+        return ['v1.admin.publication.was-exported'];
     }
 
-----
-
-Create service configuration as following:
-
-    App\Service\Binding:
-        parent: Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable
-        autoconfigure: false
-        autowire: true
-        tags:
-            - { name: "ipedis_rabbit.worker", key: "binding" }
-
-*on tag, `binding` key will be used to identify worker from cli*
-
-    php bin/console ip:worker:spawner binding
-
-----
-
-**Event Dispatcher**
-
-require service `Ipedis\Bundle\Rabbit\Service\Dispatcher\EventDispatcher` and dispatch any event as :
-
-    public function index(EventDispatcher $dispatcher)
+    protected function getHandledMessages(): iterable
     {
-        $dispatcher->dispatchEvent('publication.was-exported', [
-            'publication' => ['sid' => 1234]
-        ]);
+        yield 'v1.admin.publication.was-exported' => ['method' => 'onExported'];
     }
 
-it will use `connection` and `event` configuration from bundle configuration.
-
-Get Started: Mananger and Worker
-==
-
-Create service Manager as following:
-    
-    use Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable;
-    use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
-    use PhpAmqpLib\Message\AMQPMessage;
-    
-    class Manager extends OrderConnectable implements ProcessInterface
+    public function onExported(EventMessagePayload $payload): void
     {
-        use \Ipedis\Rabbit\Order\Manager;
-    
-        protected $taskIsFinish;
-    
-        public function execute()
-        {
-            $this->taskIsFinish = false;
-            $this->connect();
-            $anoQueue = $this->bindCallbackToAnonymousQueue([$this,"callback"]);
-    
-            $this->publishTask(Worker::getQueueName(),
-                [
-                    "name" => "task"
-                ],
-                $anoQueue,
-                'task'
-            );
-    
-            while (!$this->taskIsFinish) {
-                $this->channel->wait();
-            }
-        }
-    
-        /**
-         * @description will be executed as soon as worker will send findback on anonymous queue.
-         * @param AMQPMessage $message
-         */
-        public function callback(AMQPMessage $message) {
-            $params = json_decode($message->getBody(),true);
-            switch ($params['status']) {
-                case "PROGRESS":
-                    $this->onProgress($message);
-                    break;
-                case "SUCCESS":
-                    $this->onSuccess($message);
-                    break;
-                case "ERROR":
-                    $this->onError($message);
-                    break;
-            }
-    
-        }
-    
-        private function onProgress(AMQPMessage $message)
-        {
-            // [...]
-        }
-    
-        private function onSuccess(AMQPMessage $message)
-        {
-            // [...]
-            $this->taskIsFinish = true;
-        }
-    
-        private function onError(AMQPMessage $message)
-        {
-            // [...]
-            $this->taskIsFinish = true;
-        }
-        public function __destruct()
-        {
-            $this->disconnect();
-        }
+        // ...
     }
 
-
-and config as following
-
-    App\Service\Manager:
-        parent: Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable
-        autoconfigure: false
-        autowire: true
-        tags:
-            - { name: "ipedis_rabbit.worker", key: "manager" }
-
-
-Create Service Worker as following:
-
-    use Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable;
-    use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
-    use PhpAmqpLib\Message\AMQPMessage;
-    
-    class Worker extends OrderConnectable implements ProcessInterface
+    protected function makeMessageHandler(): Closure
     {
-        use \Ipedis\Rabbit\Order\Worker;
-    
-        public static function getQueueName(): string
-        {
-            return OrderChannel::fromString('v1.admin.publication.generate');
-        }
-    
-        protected function getProcessing(): \Closure
-        {
-            return function (AMQPMessage $req) {
-    
-                $this->notifyTo($req, ['status' => 'PROGRESS', 'step' => 1]);
-    
-                return ["foo" => "bar"];
-            };
-        }
+        return function (EventMessagePayload $payload): void {
+        };
     }
 
-and config as following:
+    protected function makeExceptionHandler(): Closure
+    {
+        return function (\Exception $exception, ?EventMessagePayload $payload): void {
+        };
+    }
+}
+```
 
-    App\Service\Worker:
-        parent: Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable
-        autoconfigure: false
-        autowire: true
-        tags:
-            - { name: "ipedis_rabbit.worker", key: "worker" }
+Register it with the `EventConnectable` parent and a worker key:
+
+```yaml
+services:
+  App\Listener\PublicationListener:
+    parent: Ipedis\Bundle\Rabbit\Service\Connectable\EventConnectable
+    autoconfigure: false
+    autowire: true
+    tags:
+      - { name: "ipedis_rabbit.worker", key: "publication" }
+```
+
+To inject your own services, add them after the four arguments of the parent constructor (`$connectionConfig`, `$exchangeConfig`, `$channelFactory`, `$messagePayloadValidator`).
+
+Run it (under supervisor or systemd in production):
+
+```bash
+php bin/console ip:worker:spawner publication
+```
+
+## Orders
+
+A worker consumes one order channel:
+
+```php
+use AMQPEnvelope;
+use Closure;
+use Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable;
+use Ipedis\Bundle\Rabbit\Service\Contract\ProcessInterface;
+use Ipedis\Rabbit\MessagePayload\OrderMessagePayload;
+use Ipedis\Rabbit\Order\Worker;
+
+class GenerateWorker extends OrderConnectable implements ProcessInterface
+{
+    use Worker;
+
+    protected function getQueueName(): string
+    {
+        return 'v1.admin.publication.generate';
+    }
+
+    protected function makeMessageHandler(): Closure
+    {
+        return function (AMQPEnvelope $message, OrderMessagePayload $order): array {
+            return ['done' => true]; // sent back with the success reply
+        };
+    }
+
+    protected function makeExceptionHandler(): Closure
+    {
+        return fn (\Exception $exception, ?OrderMessagePayload $order): array => [];
+    }
+}
+```
+
+```yaml
+  App\Worker\GenerateWorker:
+    parent: Ipedis\Bundle\Rabbit\Service\Connectable\OrderConnectable
+    autoconfigure: false
+    autowire: true
+    tags:
+      - { name: "ipedis_rabbit.worker", key: "generate" }
+```
+
+To send orders and wait for the replies, inject `Ipedis\Bundle\Rabbit\Service\Manager\OrderManager`, or `Ipedis\Bundle\Rabbit\Service\Manager\WorkflowManager` to run a workflow (groups of orders run in sequence, with progress). See the [rabbit-client readme](https://github.com/ipedis/rabbit-client#orders-manager-and-worker) for their API.
+
+## Payload validation
+
+Before a message is published, its data is validated against `<schema_base_path>/<version>/<service>/<aggregate>/<action>/schema.json`, for example `v1/admin/publication/was-exported/schema.json`. A channel without a schema is refused (`MessagePayloadInvalidSchemaException`), so point `schema_base_path` to your own schema folder, or set `enabled: false`.
+
+## Upgrading to 2.2
+
+The recovery fallback of rabbit-client is removed (see its [upgrade notes](https://github.com/ipedis/rabbit-client#upgrading-from-21)):
+
+- `event.recovery_endpoint` and `event.http_signature` are deprecated and ignored: remove them from your configuration (and the environment variables they used). They will be refused in 3.0.
+- `EventConnectable` no longer has `getRecoveryEventStoreEndpoint()`, `getSecretKey()`, `getSignatureKey()`, `getHashingAlgorithm()` and `getHeadersList()`.
+- `service_name` is now required, and the `connection`, `order`, `event` and `validation` blocks can be left out (their defaults apply).
+
+## Local development
+
+Requires [Docker](https://www.docker.com/).
+
+```bash
+make install   # build the container and install the dependencies
+make qa        # rector + pint + phpstan + tests
+```
+
+## License
+
+Apache License 2.0, see [LICENSE](LICENSE). Maintained by [Ipedis](https://www.ipedis.com) for its Publispeak platform, provided as-is.

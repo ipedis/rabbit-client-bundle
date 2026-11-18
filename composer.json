@@ -2,7 +2,7 @@
     "name": "ipedis/rabbit-client-bundle",
     "description": "Symfony bundle for rabbit client",
     "type": "library",
-    "license": "CC-BY-1.0",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "yanis",
@@ -13,11 +13,12 @@
     "require": {
         "php": ">=8.3.0",
         "ext-json": "*",
-        "ipedis/rabbit-client": "^2.0.5",
+        "ipedis/rabbit-client": "^2.2",
         "symfony/dependency-injection": "^7.4",
         "symfony/config": "^7.4",
         "symfony/console": "^7.4",
         "symfony/http-kernel": "^7.4",
+        "symfony/yaml": "^7.4",
         "symfony/monolog-bundle": "^4.0"
     },
     "autoload": {
@@ -36,6 +37,11 @@
         "phpstan/phpstan": "^2.1",
         "laravel/pint": "^1.19",
         "phpstan/phpstan-strict-rules": "^2.0"
+    },
+    "config": {
+        "platform": {
+            "php": "8.3.0"
+        }
     },
     "scripts": {
         "test": "phpunit",

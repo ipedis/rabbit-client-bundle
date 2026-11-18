@@ -29,6 +29,8 @@ class RabbitExtension extends Extension
         $order = $config['order'];
         /** @var array<string, mixed> $event */
         $event = $config['event'];
+        // deprecated and ignored (see Configuration): keep the old secret out of the container parameters
+        unset($event['recovery_endpoint'], $event['http_signature']);
         /** @var array<string, mixed> $validation */
         $validation = $config['validation'];
 

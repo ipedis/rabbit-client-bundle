@@ -13,9 +13,7 @@ class RabbitBundle extends Bundle
     #[\Override]
     public function getContainerExtension(): ?ExtensionInterface
     {
-        if ($this->extension === null) {
-            $this->extension = new RabbitExtension();
-        }
+        $this->extension ??= new RabbitExtension();
 
         return $this->extension ?: null;
     }
