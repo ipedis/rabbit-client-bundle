@@ -13,11 +13,12 @@
     "require": {
         "php": ">=8.3.0",
         "ext-json": "*",
-        "ipedis/rabbit-client": "^2.0.5",
+        "ipedis/rabbit-client": "^2.2",
         "symfony/dependency-injection": "^7.4",
         "symfony/config": "^7.4",
         "symfony/console": "^7.4",
         "symfony/http-kernel": "^7.4",
+        "symfony/yaml": "^7.4",
         "symfony/monolog-bundle": "^4.0"
     },
     "autoload": {
