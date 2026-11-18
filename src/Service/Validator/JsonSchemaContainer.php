@@ -13,9 +13,7 @@ class JsonSchemaContainer
 
     public function addSchema(string $id, object $schema): void
     {
-        if (!isset($this->schemas[$id])) {
-            $this->schemas[$id] = $schema;
-        }
+        $this->schemas[$id] ??= $schema;
     }
 
     public function getSchema(string $id): object
